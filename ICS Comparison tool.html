@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ICS Dose Equivalence Tool</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#e8ecff;
+      --muted:#aab3da;
+      --line:rgba(255,255,255,.12);
+      --chip:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --ok:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(110,231,255,.12), transparent 60%),
+                  radial-gradient(900px 700px at 80% 20%, rgba(167,139,250,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    header{
+      max-width:1200px;
+      margin:0 auto;
+      padding:20px 16px 10px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+    }
+    h1{ margin:0; font-size:18px; letter-spacing:.2px; }
+    .sub{ color:var(--muted); font-size:12px; max-width:900px; margin-top:6px; }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button{
+      cursor:pointer; padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color:var(--text); font-weight:650; font-size:12px;
+    }
+    button:hover{ border-color: rgba(110,231,255,.4); }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 10px 16px 26px;
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .wrap{grid-template-columns: 1fr;} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border:1px solid var(--line);
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      /* fixed-ish panel height to prevent jumping */
+      min-height: 74vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .card .hd{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      flex: 0 0 auto;
+    }
+    .card .hd h2{ margin:0; font-size:13px; letter-spacing:.2px; }
+    .card .bd{
+      padding:14px;
+      flex: 1 1 auto;
+      overflow:auto; /* internal scrolling */
+    }
+
+    .grid2{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; }
+    @media (max-width: 520px){ .grid2{ grid-template-columns: 1fr; } }
+
+    .tile{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:10px;
+      cursor:pointer;
+      transition: transform .05s ease, border-color .15s ease;
+      min-height:64px;
+      position:relative;
+    }
+    .tile:hover{ border-color: rgba(110,231,255,.35); }
+    .tile:active{ transform: scale(.99); }
+    .tile.sel{
+      border-color: rgba(110,231,255,.6);
+      box-shadow: 0 0 0 3px rgba(110,231,255,.14);
+    }
+    .tile.bad{
+      border-color: rgba(251,113,133,.55);
+      box-shadow: 0 0 0 3px rgba(251,113,133,.10);
+    }
+    .tname{ font-weight:750; font-size:12px; }
+    .tmeta{ color:var(--muted); font-size:11px; margin-top:4px; }
+
+    .box{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:10px;
+      background: rgba(0,0,0,.18);
+      margin-top:12px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background: var(--chip); border:1px solid rgba(255,255,255,.12);
+      font-size:12px; color:var(--text); white-space:nowrap;
+    }
+    .kvs{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .mono{ font-variant-numeric: tabular-nums; }
+    .muted{ color:var(--muted); }
+
+    .section{
+      margin-top:14px; padding-top:10px;
+      border-top:1px solid rgba(255,255,255,.10);
+    }
+    .section h3{ margin:0 0 8px; font-size:12px; letter-spacing:.2px; }
+
+    .targetsGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 980px){ .targetsGrid{ grid-template-columns: 1fr; } }
+
+    .rcard{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+    .rcard.bad{ border-color: rgba(251,113,133,.55); }
+    .rcard .top{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.02);
+    }
+    .rcard .name{ font-size:12px; font-weight:800; display:flex; gap:8px; align-items:center; justify-content:space-between; }
+    .rcard .meta{ margin-top:3px; font-size:11px; color:var(--muted); }
+    .rcard .mid{
+      padding:10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      font-size:12px;
+    }
+    .line{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .line .l{ color:var(--muted); }
+    .line .r{ color:var(--text); text-align:right; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .badge.bad{ color: var(--bad); border-color: rgba(251,113,133,.35); }
+    .badge.ok{ color: var(--ok); border-color: rgba(52,211,153,.35); }
+    .badge.warn{ color: var(--warn); border-color: rgba(251,191,36,.35); }
+
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      position:relative;
+      overflow:hidden;
+      margin-top:6px;
+    }
+    .bar .fill{
+      position:absolute; left:0; top:0; bottom:0;
+      width:0%;
+      background: linear-gradient(90deg, rgba(110,231,255,.85), rgba(167,139,250,.85));
+    }
+    .bar .tick{
+      position:absolute;
+      top:-3px;
+      width:2px;
+      height:16px;
+      background: rgba(255,255,255,.65);
+    }
+    .bar .dot{
+      position:absolute;
+      top:50%;
+      transform: translate(-50%, -50%);
+      width:10px; height:10px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.9);
+      background: rgba(0,0,0,.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .foot{
+      max-width:1200px;
+      margin:0 auto 22px;
+      padding: 0 16px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>ICS Dose Equivalence Tool</h1>
+    <div class="sub">
+      Cross-converts between ICS-only and ICS/LABA products using the steroid component only.
+      Output requires <b>exactly 1 device</b> and <b>exactly 30 days</b> coverage.
+    </div>
+  </div>
+  <div class="actions">
+    <button id="pdfBtn">View Source PDF</button>
+    <button id="copyBtn" title="Copy link with selected source strength">Copy link</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- LEFT: Source -->
+  <div class="card">
+    <div class="hd">
+      <h2>Source</h2>
+      <div class="pill"><span class="muted">30 days • 1 device</span></div>
+    </div>
+    <div class="bd">
+      <div id="sourceModeBar" class="box" style="margin-top:0; display:none;">
+        <div class="tname">Selected source</div>
+        <div class="tmeta">To change, tap “Change source”.</div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="changeSourceBtn">Change source</button>
+        </div>
+      </div>
+
+      <div id="tiles" class="grid2"></div>
+
+      <div class="box" id="srcBox" style="display:none;">
+        <div id="srcTitle" class="tname"></div>
+        <div id="srcMeta" class="tmeta"></div>
+        <div class="kvs" id="srcPills"></div>
+        <div id="srcWarn" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="card">
+    <div class="hd">
+      <h2>Target</h2>
+      <div class="pill"><span class="muted">tap target or “See All”</span></div>
+    </div>
+    <div class="bd">
+      <div class="box" style="margin-top:0;">
+        <div class="tname">Target product</div>
+        <div class="tmeta">Choose one target to focus, or See All.</div>
+        <div id="targetTiles" class="grid2" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="results" style="margin-top:12px;">
+        <div class="muted">Select a source strength to see equivalents.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div><b>Chart note</b></div>
+  <div class="mt10">
+    G: Generic is available. When generic and brand are available, Ohio Medicaid prefers brand over generic (except for Flovent®, since brand not in marketplace).
+  </div>
+  <div>HFA: Hydrofluoroalkane, a propellant most commonly used in metered dose inhalers.</div>
+  <div>*When available, these comparative dosages were obtained from the 2007 NAEPP Expert Panel Report 3 (EPR3). If not available in EPR3, the 2024 Global Initiative for Asthma guidelines were referenced.</div>
+  <div class="mt10">Last updated 01/2025 by PFK Pharmacy.</div>
+</div>
+
+<script>
+/** ========= CONFIG ========= */
+const PDF_URL = "Estimated Comparative Daily Dosages for Inhaled Corticosteroids_.pdf";
+const DAYS = 30;
+
+/** hard constraints:
+ * - exactly ONE device for 30 days
+ * - regimen must use exactly ACT/device doses over 30 days
+ */
+const AGE_LABELS = { child:"Child (5–11)", teen:"Teen/Adult (≥12)" };
+const BANDS = ["low","medium","high"];
+
+/** ========= DATA MODEL ========= */
+const PRODUCTS = [
+  // ICS-only
+  { id:"flovent_hfa", name:"Fluticasone propionateG (Flovent® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"44 mcg", steroid_mcg:44, device_doses:[120]},
+      {label:"110 mcg", steroid_mcg:110, device_doses:[120]},
+      {label:"220 mcg", steroid_mcg:220, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"88 - 176", medium:">176 - 440", high:">440"}, teen:{low:"88 - 264", medium:">264 - 660", high:">660"} }
+  },
+  { id:"asmanex_hfa", name:"Mometasone (Asmanex® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"50 mcg", steroid_mcg:50, device_doses:[120]},
+      {label:"100 mcg", steroid_mcg:100, device_doses:[120]},
+      {label:"200 mcg", steroid_mcg:200, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"100", medium:"200", high:"400"}, teen:{low:"200", medium:"400", high:">400"} }
+  },
+  { id:"alvesco_hfa", name:"Ciclesonide (Alvesco® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"80 mcg", steroid_mcg:80, device_doses:[60]},
+      {label:"160 mcg", steroid_mcg:160, device_doses:[60]},
+    ],
+    ranges:{ child:{low:"80", medium:"160", high:">160"}, teen:{low:"160", medium:"320", high:"640"} }
+  },
+  { id:"qvar_redihaler", name:"Beclomethasone (QVAR® Redihaler™)", delivery:"Breath-actuated", freq:"BID",
+    strengths:[
+      {label:"40 mcg", steroid_mcg:40, device_doses:[120]},
+      {label:"80 mcg", steroid_mcg:80, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"80 - 160", medium:">160 - 320", high:">320"}, teen:{low:"80 - 240", medium:">240 - 480", high:">480"} }
+  },
+  { id:"pulmicort_flexhaler", name:"BudesonideG (Pulmicort Flexhaler™)", delivery:"Breath-actuated", freq:"BID",
+    strengths:[
+      {label:"90 mcg", steroid_mcg:90, device_doses:[60]},
+      {label:"180 mcg", steroid_mcg:180, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"180 - 360", medium:">360 - 720", high:">720"}, teen:{low:"180 - 540", medium:">540 - 1,080", high:">1,080"} }
+  },
+  { id:"flovent_diskus", name:"Fluticasone propionateG (Flovent® Diskus®)", delivery:"Breath-actuated", freq:"BID",
+    strengths:[
+      {label:"50 mcg", steroid_mcg:50, device_doses:[60]},
+      {label:"100 mcg", steroid_mcg:100, device_doses:[60]},
+      {label:"250 mcg", steroid_mcg:250, device_doses:[60]},
+    ],
+    ranges:{ child:{low:"100 - 200", medium:">200 - 400", high:">400"}, teen:{low:"100 - 300", medium:">300 - 500", high:">500"} }
+  },
+  { id:"arnuity_ellipta", name:"Fluticasone furoate (Arnuity™ Ellipta™)", delivery:"Breath-actuated", freq:"Daily",
+    strengths:[
+      {label:"50 mcg", steroid_mcg:50, device_doses:[30]},
+      {label:"100 mcg", steroid_mcg:100, device_doses:[30]},
+      {label:"200 mcg", steroid_mcg:200, device_doses:[30]},
+    ],
+    ranges:{ child:{low:"50", medium:"100", high:null}, teen:{low:"100", medium:"200", high:null} }
+  },
+  { id:"asmanex_twisthaler", name:"Mometasone (Asmanex® Twisthaler®)", delivery:"Breath-actuated", freq:"Daily",
+    strengths:[
+      {label:"110 mcg", steroid_mcg:110, device_doses:[30,60,120]},
+      {label:"220 mcg", steroid_mcg:220, device_doses:[30,60,120]},
+    ],
+    ranges:{ child:{low:"110", medium:"220", high:">220 - 440"}, teen:{low:"220", medium:"440", high:">440"} }
+  },
+  { id:"pulmicort_respules", name:"BudesonideG (Pulmicort Respules®)", delivery:"Nebulized", freq:"Daily",
+    strengths:[
+      {label:"0.25 mg/2 mL", steroid_mg:0.25, device_doses:[30]},
+      {label:"0.5 mg/2 mL", steroid_mg:0.5, device_doses:[30]},
+      {label:"1 mg/2 mL", steroid_mg:1.0, device_doses:[30]},
+    ],
+    ranges:{ child:{low:"0.5 mg", medium:"1 mg", high:"2 mg"}, teen:null }
+  },
+
+  // ICS/LABA (steroid component only)
+  { id:"symbicort_hfa", name:"Budesonide/formoterolG (Symbicort® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"80/4.5 mcg", steroid_mcg:80, device_doses:[120]},
+      {label:"160/4.5 mcg", steroid_mcg:160, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"160 - 320", medium:">320 - 640", high:null}, teen:{low:"320", medium:"640", high:null} }
+  },
+  { id:"advair_hfa", name:"Fluticasone/salmeterolG (Advair® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"45/21 mcg", steroid_mcg:45, device_doses:[120]},
+      {label:"115/21 mcg", steroid_mcg:115, device_doses:[120]},
+      {label:"230/21 mcg", steroid_mcg:230, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"90 - 180", medium:"460", high:"920"}, teen:{low:"180", medium:"460", high:"920"} }
+  },
+  { id:"dulera_hfa", name:"Mometasone/formoterol (Dulera® HFA)", delivery:"Spacer compatible", freq:"BID",
+    strengths:[
+      {label:"50/5 mcg", steroid_mcg:50, device_doses:[120]},
+      {label:"100/5 mcg", steroid_mcg:100, device_doses:[120]},
+      {label:"200/5 mcg", steroid_mcg:200, device_doses:[120]},
+    ],
+    ranges:{ child:{low:"100", medium:"200", high:"400"}, teen:{low:"200", medium:"400", high:"800"} }
+  },
+  { id:"advair_diskus", name:"Fluticasone/salmeterolG (Advair Diskus®)", delivery:"Breath-actuated", freq:"BID",
+    strengths:[
+      {label:"100/50 mcg", steroid_mcg:100, device_doses:[60]},
+      {label:"250/50 mcg", steroid_mcg:250, device_doses:[60]},
+      {label:"500/50 mcg", steroid_mcg:500, device_doses:[60]},
+    ],
+    ranges:{ child:{low:"200", medium:"500", high:"1000"}, teen:{low:"200", medium:"500", high:"1000"} }
+  },
+  { id:"breo_ellipta", name:"Fluticasone furoate/vilanterolG (Breo™ Ellipta™)", delivery:"Breath-actuated", freq:"Daily",
+    strengths:[
+      {label:"50/25 mcg", steroid_mcg:50, device_doses:[30]},
+      {label:"100/25 mcg", steroid_mcg:100, device_doses:[30]},
+      {label:"200/25 mcg", steroid_mcg:200, device_doses:[30]},
+    ],
+    ranges:{ child:{low:"50", medium:"100", high:null}, teen:{low:"100", medium:"200", high:null} }
+  },
+];
+
+/** ========= Helpers ========= */
+const $ = (s)=>document.querySelector(s);
+function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;"); }
+function isNeb(p){ return p.delivery === "Nebulized"; }
+function isTwisthaler(p){ return p.id === "asmanex_twisthaler"; }
+
+function strengthMcg(strObj){
+  if (typeof strObj.steroid_mcg === "number") return strObj.steroid_mcg;
+  if (typeof strObj.steroid_mg === "number") return strObj.steroid_mg * 1000;
+  return null;
+}
+function fmtDose(doseMcg, preferMg=false){
+  if (preferMg){
+    const mg = doseMcg/1000;
+    if (Math.abs(mg - Math.round(mg*100)/100) < 1e-9) return `${mg} mg`;
+  }
+  return `${Math.round(doseMcg).toLocaleString()} mcg`;
+}
+
+// Parses: "88 - 176", ">176 - 440", "100", "0.5 mg", ">540 - 1,080"
+function parseRangeString(s){
+  if (!s) return null;
+  const raw = String(s).trim();
+  const hasMg = raw.toLowerCase().includes("mg");
+  const nums = raw.match(/[\d,.]+/g) || [];
+  const toNum = (x)=> Number(String(x).replaceAll(",",""));
+  const values = nums.map(toNum).filter(v=>!Number.isNaN(v));
+  const gt = raw.includes(">");
+  const dash = raw.includes("-");
+  const mul = hasMg ? 1000 : 1;
+
+  if (!dash && values.length===1) return {kind:"exact", value: values[0]*mul};
+  if (dash && values.length>=2) return {kind:"range", min: values[0]*mul, max: values[1]*mul, minExclusive: gt};
+  if (values.length===1) return {kind:"exact", value: values[0]*mul};
+  return null;
+}
+function inRange(d, r){
+  if (!r) return false;
+  if (r.kind==="exact") return Math.abs(d-r.value) < 1e-6;
+  if (r.kind==="range"){
+    const lowerOk = r.minExclusive ? (d > r.min) : (d >= r.min);
+    return lowerOk && d <= r.max;
+  }
+  return false;
+}
+function rangePos(d, r){
+  if (!r) return null;
+  if (r.kind==="exact") return 0.5;
+  if (r.kind==="range"){
+    const span = r.max - r.min;
+    if (span<=0) return 0.5;
+    let t = (d - r.min)/span;
+    return Math.max(0, Math.min(1, t));
+  }
+  return null;
+}
+function pickWithinRange(r, pos){
+  if (!r) return null;
+  if (r.kind==="exact") return r.value;
+  if (r.kind==="range"){
+    const t = pos==null ? 0.5 : pos;
+    if (t <= 0.02) return r.min;
+    if (t >= 0.98) return r.max;
+    const v = r.min + (r.max - r.min)*t;
+    return Math.round(v/5)*5;
+  }
+  return null;
+}
+
+function regimenText(p, puffsPerDose, puffsPerDay){
+  if (isNeb(p)) return `${puffsPerDay} vial(s) once daily`;
+  if (p.freq==="BID") return `${puffsPerDose} inhalation(s) BID`;
+  return `${puffsPerDay} inhalation(s) once daily`;
+}
+
+/** EXACTLY one device and exactly 30 days:
+ * requirement: neededAct = puffsPerDay * 30 MUST equal one available device size.
+ */
+function oneDevicePlan(strength, puffsPerDay){
+  const needed = puffsPerDay * DAYS;
+  const sizes = (strength.device_doses || []).slice();
+  const match = sizes.find(x => x === needed);
+  if (!match){
+    return {ok:false, neededAct: needed, actPerDevice: null, reason:"No 1-device 30-day fit"};
+  }
+  return {ok:true, neededAct: needed, actPerDevice: match};
+}
+
+function deviceLineText(p, plan){
+  const actWord = isNeb(p) ? "vials" : "ACT";
+  // for neb, device_doses is a box count; still show as ACT/device wording but "vials" is clearer
+  if (isNeb(p)){
+    return `${plan.actPerDevice} vials/box (30 days)`;
+  }
+  return `${plan.actPerDevice} ACT/device (30 days)`;
+}
+
+/** ========= Source default regimen (quiet) =========
+ * Chosen to produce 1-device 30-day regimen when possible:
+ * - BID: prefer puffs/dose that makes neededAct match available device size.
+ * - Daily: prefer puffs/day that makes neededAct match.
+ * - Neb: 1 vial/day (so 30 vials).
+ */
+function defaultSourceRegimen(p, s){
+  if (isNeb(p)){
+    // strict: 1 vial/day so one box/month
+    return {puffsPerDose:1, puffsPerDay:1};
+  }
+
+  const sizes = (s.device_doses || []).slice().sort((a,b)=>a-b);
+  if (!sizes.length){
+    // fallback
+    return (p.freq==="BID") ? {puffsPerDose:1, puffsPerDay:2} : {puffsPerDose:1, puffsPerDay:1};
+  }
+
+  if (p.freq==="BID"){
+    // needAct must equal a device size; puffsPerDay = needAct/30 must be even
+    for (const size of sizes){
+      const puffsPerDay = size / DAYS;
+      if (!Number.isInteger(puffsPerDay)) continue;
+      if (puffsPerDay % 2 !== 0) continue;
+      const puffsPerDose = puffsPerDay / 2;
+      if (Number.isInteger(puffsPerDose) && puffsPerDose >= 1) return {puffsPerDose, puffsPerDay};
+    }
+    return {puffsPerDose:1, puffsPerDay:2};
+  }
+
+  // Daily
+  for (const size of sizes){
+    const puffsPerDay = size / DAYS;
+    if (Number.isInteger(puffsPerDay) && puffsPerDay >= 1) return {puffsPerDose:puffsPerDay, puffsPerDay};
+  }
+  return {puffsPerDose:1, puffsPerDay:1};
+}
+
+function dailyDoseMcg(p, s, puffsPerDay){
+  return strengthMcg(s) * puffsPerDay;
+}
+
+/** ========= Category matching ========= */
+function matchingCategories(p, dailyMcg){
+  const out = [];
+  for (const age of ["child","teen"]){
+    const set = p.ranges?.[age];
+    if (!set) continue;
+    for (const band of BANDS){
+      const r = parseRangeString(set[band]);
+      if (!r) continue;
+      if (inRange(dailyMcg, r)){
+        out.push({age, band, range:r, pos: rangePos(dailyMcg, r), sourceDaily: dailyMcg});
+      }
+    }
+  }
+  return out;
+}
+
+/** ========= Recommendation engine (STRICT 1-device + 30d) ========= */
+function recommendStrict(targetP, desiredDailyMcg){
+  // Find a regimen that (a) respects Daily vs BID, (b) uniform puffs/dose if BID,
+  // (c) uses EXACTLY 1 device and EXACTLY 30 days (puffsPerDay*30 == ACT/device).
+  // We select the closest daily steroid dose to desiredDailyMcg among feasible regimens.
+
+  const mk = (ok, obj)=> ({ok, ...obj});
+
+  // Neb: only 1 vial/day allowed (30-vial box). Choose strength closest to desired.
+  if (isNeb(targetP)){
+    let best = null;
+    for (const s of targetP.strengths){
+      const plan = oneDevicePlan(s, 1); // needs 30 exactly
+      if (!plan.ok) continue;
+      const achieved = strengthMcg(s) * 1;
+      const err = Math.abs(achieved - desiredDailyMcg);
+      const cand = {s, puffsPerDose:1, puffsPerDay:1, achieved, err, plan};
+      if (!best || err < best.err) best = cand;
+    }
+    if (!best) return mk(false, {reason:"No 1-box 30-day fit"});
+    return mk(true, best);
+  }
+
+  let best = null;
+
+  for (const s of targetP.strengths){
+    const sizes = (s.device_doses || []).slice();
+
+    if (targetP.freq === "Daily"){
+      // puffsPerDay must be size/30 integer
+      for (const size of sizes){
+        const puffsPerDay = size / DAYS;
+        if (!Number.isInteger(puffsPerDay) || puffsPerDay < 1) continue;
+
+        // Twisthaler warning handled in UI, but logic is same
+        const plan = oneDevicePlan(s, puffsPerDay);
+        if (!plan.ok) continue;
+
+        const achieved = strengthMcg(s) * puffsPerDay;
+        const err = Math.abs(achieved - desiredDailyMcg);
+
+        // Twisthaler preference rule (your earlier rule): lowest strength first, then strength, then puffs/day
+        // Here we mainly minimize err; tie-breakers include lower strength then fewer puffs/day.
+        const cand = {s, puffsPerDose:puffsPerDay, puffsPerDay, achieved, err, plan};
+        if (!best) best = cand;
+        else if (err < best.err) best = cand;
+        else if (err === best.err){
+          const u = strengthMcg(s), ub = strengthMcg(best.s);
+          if (u < ub) best = cand;
+          else if (u === ub && puffsPerDay < best.puffsPerDay) best = cand;
+        }
+      }
+      continue;
+    }
+
+    if (targetP.freq === "BID"){
+      // puffsPerDay must be size/30 integer AND even; puffsPerDose = puffsPerDay/2
+      for (const size of sizes){
+        const puffsPerDay = size / DAYS;
+        if (!Number.isInteger(puffsPerDay) || puffsPerDay < 2) continue;
+        if (puffsPerDay % 2 !== 0) continue;
+
+        const puffsPerDose = puffsPerDay / 2;
+        if (!Number.isInteger(puffsPerDose) || puffsPerDose < 1) continue;
+
+        const plan = oneDevicePlan(s, puffsPerDay);
+        if (!plan.ok) continue;
+
+        const achieved = strengthMcg(s) * puffsPerDay;
+        const err = Math.abs(achieved - desiredDailyMcg);
+
+        const cand = {s, puffsPerDose, puffsPerDay, achieved, err, plan};
+        if (!best) best = cand;
+        else if (err < best.err) best = cand;
+        else if (err === best.err){
+          const u = strengthMcg(s), ub = strengthMcg(best.s);
+          if (u < ub) best = cand;
+          else if (u === ub && puffsPerDose < best.puffsPerDose) best = cand;
+        }
+      }
+      continue;
+    }
+  }
+
+  if (!best) return mk(false, {reason:"No 1-device 30-day fit"});
+  return mk(true, best);
+}
+
+/** ========= Visual range bar ========= */
+function rangeBarHTML(rangeObj, dotPos, preferMg){
+  if (!rangeObj || rangeObj.kind==="exact"){
+    return `<div class="badge ok">Exact</div>`;
+  }
+  const t = Math.max(0, Math.min(1, dotPos==null ? 0.5 : dotPos));
+  const percent = Math.round(t*100);
+  const min = fmtDose(rangeObj.min, preferMg);
+  const max = fmtDose(rangeObj.max, preferMg);
+
+  return `
+    <div class="bar" aria-label="range bar">
+      <div class="fill" style="width:${percent}%"></div>
+      <div class="tick" style="left:0%"></div>
+      <div class="tick" style="left:100%"></div>
+      <div class="dot" style="left:${percent}%"></div>
+    </div>
+    <div class="muted" style="font-size:11px; margin-top:6px;">
+      ${rangeObj.minExclusive ? ">" : ""}${min} – ${max}
+    </div>
+  `;
+}
+
+/** ========= UI ========= */
+const tilesEl = $("#tiles");
+const targetTilesEl = $("#targetTiles");
+const resultsEl = $("#results");
+const srcBoxEl = $("#srcBox");
+const srcTitleEl = $("#srcTitle");
+const srcMetaEl = $("#srcMeta");
+const srcPillsEl = $("#srcPills");
+const srcWarnEl = $("#srcWarn");
+const sourceModeBarEl = $("#sourceModeBar");
+const changeSourceBtn = $("#changeSourceBtn");
+
+let state = {
+  selKey: null,               // `${productId}__${strengthIndex}`
+  targetProductId: "__all__", // output filter
+  sourceCollapsed: false
+};
+
+function tileKey(pId, sIdx){ return `${pId}__${sIdx}`; }
+function parseKey(k){
+  const [pId, idx] = k.split("__");
+  return {pId, sIdx: Number(idx)};
+}
+
+function buildSourceTiles(){
+  tilesEl.innerHTML = "";
+  const src = getSource();
+
+  for (const p of PRODUCTS){
+    for (let i=0; i<p.strengths.length; i++){
+      const s = p.strengths[i];
+      const key = tileKey(p.id, i);
+
+      if (state.sourceCollapsed && src && key !== state.selKey) continue;
+
+      const div = document.createElement("div");
+      div.className = "tile";
+      div.dataset.key = key;
+
+      const twWarn = (p.id === "asmanex_twisthaler")
+        ? `<span class="badge warn" style="margin-left:8px;">Multiple ACT/device</span>`
+        : "";
+
+      div.innerHTML = `
+        <div class="tname">${escapeHtml(p.name)} <span class="mono">${escapeHtml(s.label)}</span>${twWarn}</div>
+        <div class="tmeta">${escapeHtml(p.delivery)} • ${escapeHtml(p.freq)}</div>
+      `;
+      div.addEventListener("click", ()=> selectSource(key));
+      tilesEl.appendChild(div);
+    }
+  }
+  syncSourceSelection();
+}
+
+function buildTargetTiles(){
+  targetTilesEl.innerHTML = "";
+
+  const all = document.createElement("div");
+  all.className = "tile";
+  all.dataset.pid = "__all__";
+  all.innerHTML = `<div class="tname">See All</div><div class="tmeta">Show all target products</div>`;
+  all.addEventListener("click", ()=> selectTarget("__all__"));
+  targetTilesEl.appendChild(all);
+
+  for (const p of PRODUCTS){
+    const div = document.createElement("div");
+    div.className = "tile";
+    div.dataset.pid = p.id;
+
+    const twWarn = (p.id === "asmanex_twisthaler")
+      ? `<span class="badge warn" style="margin-left:8px;">Multiple ACT/device</span>`
+      : "";
+
+    div.innerHTML = `
+      <div class="tname">${escapeHtml(p.name)}${twWarn}</div>
+      <div class="tmeta">${escapeHtml(p.delivery)} • ${escapeHtml(p.freq)}</div>
+    `;
+    div.addEventListener("click", ()=> selectTarget(p.id));
+    targetTilesEl.appendChild(div);
+  }
+  syncTargetSelection();
+}
+
+function selectSource(key){
+  state.selKey = key;
+  state.sourceCollapsed = true;
+  sourceModeBarEl.style.display = "block";
+  buildSourceTiles();
+  syncSourceSelection();
+  renderAll();
+  history.replaceState(null, "", makeShareUrl());
+}
+
+function expandSource(){
+  state.sourceCollapsed = false;
+  sourceModeBarEl.style.display = "none";
+  buildSourceTiles();
+  syncSourceSelection();
+}
+
+changeSourceBtn.addEventListener("click", expandSource);
+
+function selectTarget(pid){
+  state.targetProductId = pid;
+  syncTargetSelection();
+  renderAll();
+  history.replaceState(null, "", makeShareUrl());
+}
+
+function syncSourceSelection(){
+  for (const el of tilesEl.querySelectorAll(".tile")){
+    el.classList.toggle("sel", el.dataset.key === state.selKey);
+  }
+}
+function syncTargetSelection(){
+  for (const el of targetTilesEl.querySelectorAll(".tile")){
+    el.classList.toggle("sel", el.dataset.pid === state.targetProductId);
+  }
+}
+
+function getSource(){
+  if (!state.selKey) return null;
+  const {pId, sIdx} = parseKey(state.selKey);
+  const p = PRODUCTS.find(x=>x.id===pId);
+  if (!p || !p.strengths[sIdx]) return null;
+  return {p, s:p.strengths[sIdx], sIdx};
+}
+
+/** Share URL */
+function makeShareUrl(){
+  const url = new URL(window.location.href);
+  if (state.selKey) url.searchParams.set("src", state.selKey);
+  else url.searchParams.delete("src");
+  url.searchParams.set("tgt", state.targetProductId);
+  url.searchParams.set("sc", state.sourceCollapsed ? "1" : "0");
+  return url.toString();
+}
+function applyShareUrl(){
+  const url = new URL(window.location.href);
+  const src = url.searchParams.get("src");
+  const tgt = url.searchParams.get("tgt");
+  const sc = url.searchParams.get("sc");
+
+  if (src){
+    const {pId, sIdx} = parseKey(src);
+    const p = PRODUCTS.find(x=>x.id===pId);
+    if (p && p.strengths[sIdx]) state.selKey = src;
+  }
+  if (tgt){
+    if (tgt==="__all__" || PRODUCTS.some(x=>x.id===tgt)) state.targetProductId = tgt;
+  }
+  if (sc === "1") state.sourceCollapsed = true;
+}
+
+function pill(text){
+  const span = document.createElement("span");
+  span.className = "pill";
+  span.textContent = text;
+  return span;
+}
+
+function renderSourceBox(src){
+  srcBoxEl.style.display = "block";
+  const p = src.p, s = src.s;
+
+  const reg = defaultSourceRegimen(p, s);
+  const plan = oneDevicePlan(s, reg.puffsPerDay);
+
+  const daily = dailyDoseMcg(p, s, reg.puffsPerDay);
+
+  srcTitleEl.textContent = `${p.name} — ${s.label}`;
+  srcMetaEl.textContent = `${p.delivery} • ${p.freq}`;
+
+  srcPillsEl.innerHTML = "";
+  srcPillsEl.appendChild(pill(`Dose: ${regimenText(p, reg.puffsPerDose, reg.puffsPerDay)}`));
+  srcPillsEl.appendChild(pill(`Daily steroid: ${fmtDose(daily, isNeb(p))}`));
+
+  if (plan.ok){
+    srcPillsEl.appendChild(pill(deviceLineText(p, plan)));
+  } else {
+    srcPillsEl.appendChild(pill(`30 days: no 1-device fit`));
+  }
+
+  srcWarnEl.innerHTML = "";
+  if (isTwisthaler(p)){
+    srcWarnEl.innerHTML = `<span class="badge warn">Asmanex Twisthaler has multiple ACT/device options (30/60/120).</span>`;
+  }
+}
+
+function renderResults(src){
+  const p = src.p, s = src.s;
+
+  const reg = defaultSourceRegimen(p, s);
+  const srcPlan = oneDevicePlan(s, reg.puffsPerDay);
+  if (!srcPlan.ok){
+    resultsEl.innerHTML = `<div class="muted">Selected source strength cannot be expressed as exactly 1 device for exactly 30 days with the available ACT/device sizes.</div>`;
+    return;
+  }
+
+  const srcDaily = dailyDoseMcg(p, s, reg.puffsPerDay);
+  const matches = matchingCategories(p, srcDaily);
+
+  if (!matches.length){
+    resultsEl.innerHTML = `<div class="muted">No chart category match for this source selection.</div>`;
+    return;
+  }
+
+  // stable order: child then teen, low/medium/high
+  const ordered = [];
+  for (const age of ["child","teen"]){
+    for (const band of BANDS){
+      const found = matches.find(m=>m.age===age && m.band===band);
+      if (found) ordered.push(found);
+    }
+  }
+
+  let html = "";
+  for (const m of ordered){
+    html += `<div class="section">
+      <h3>${AGE_LABELS[m.age]} • ${m.band.toUpperCase()}</h3>
+      <div class="targetsGrid">
+    `;
+
+    for (const tp of PRODUCTS){
+      if (tp.id === p.id) continue;
+      if (state.targetProductId !== "__all__" && tp.id !== state.targetProductId) continue;
+
+      // nebulized budesonide: only match child categories
+      if (isNeb(tp) && m.age !== "child") continue;
+
+      const trStr = tp.ranges?.[m.age]?.[m.band];
+      const tr = parseRangeString(trStr);
+      if (!tr) continue;
+
+      const desired = pickWithinRange(tr, m.pos);
+      const rec = recommendStrict(tp, desired);
+
+      const preferMg = isNeb(tp);
+
+      const badge = rec.ok
+        ? `<span class="badge ok">OK</span>`
+        : `<span class="badge bad">No fit</span>`;
+
+      const twWarn = (tp.id === "asmanex_twisthaler")
+        ? `<span class="badge warn">Multiple ACT/device</span>`
+        : "";
+
+      const cardClass = rec.ok ? "rcard" : "rcard bad";
+
+      const deviceLine = rec.ok
+        ? deviceLineText(tp, rec.plan)
+        : "Requires >1 device or cannot make exact 30 days";
+
+      const achievedLine = rec.ok ? fmtDose(rec.achieved, preferMg) : "—";
+      const doseLine = rec.ok ? regimenText(tp, rec.puffsPerDose, rec.puffsPerDay) : "—";
+      const strengthLine = rec.ok ? escapeHtml(rec.s.label) : "—";
+      const why = rec.ok ? "" : `<div class="line"><div class="l">Note</div><div class="r" style="color:var(--bad)">${escapeHtml(rec.reason || "No regimen found")}</div></div>`;
+
+      const bar = (tr && tr.kind==="range")
+        ? rangeBarHTML(tr, m.pos, preferMg)
+        : `<div class="badge ok">Exact</div>`;
+
+      html += `
+        <div class="${cardClass}">
+          <div class="top">
+            <div class="name">
+              <span>${escapeHtml(tp.name)}</span>
+              <span style="display:flex; gap:8px; align-items:center;">${twWarn}${badge}</span>
+            </div>
+            <div class="meta">${escapeHtml(tp.delivery)} • ${escapeHtml(tp.freq)}</div>
+          </div>
+          <div class="mid">
+            <div class="line"><div class="l">Strength</div><div class="r mono">${strengthLine}</div></div>
+            <div class="line"><div class="l">Dose</div><div class="r mono">${escapeHtml(doseLine)}</div></div>
+            <div class="line"><div class="l">30-day supply</div><div class="r mono">${escapeHtml(deviceLine)}</div></div>
+            <div class="line"><div class="l">Daily steroid</div><div class="r mono">${achievedLine}</div></div>
+            <div class="box" style="margin-top:6px;">
+              <div class="muted" style="font-size:11px;">Target range position</div>
+              ${bar}
+            </div>
+            ${why}
+          </div>
+        </div>
+      `;
+    }
+
+    html += `</div></div>`;
+  }
+
+  resultsEl.innerHTML = html;
+}
+
+function renderAll(){
+  const src = getSource();
+  if (!src){
+    resultsEl.innerHTML = `<div class="muted">Select a source strength to see equivalents.</div>`;
+    srcBoxEl.style.display = "none";
+    sourceModeBarEl.style.display = "none";
+    return;
+  }
+  if (state.sourceCollapsed) sourceModeBarEl.style.display = "block";
+  renderSourceBox(src);
+  renderResults(src);
+}
+
+/** ========= Buttons ========= */
+$("#pdfBtn").addEventListener("click", ()=> window.open(PDF_URL, "_blank", "noopener,noreferrer"));
+$("#copyBtn").addEventListener("click", async ()=>{
+  const url = makeShareUrl();
+  try{ await navigator.clipboard.writeText(url); alert("Copied link."); }
+  catch{ prompt("Copy this link:", url); }
+});
+
+/** ========= Init ========= */
+applyShareUrl();
+buildTargetTiles();
+buildSourceTiles();
+syncTargetSelection();
+syncSourceSelection();
+if (state.sourceCollapsed && state.selKey) sourceModeBarEl.style.display = "block";
+renderAll();
+</script>
+
+</body>
+</html>

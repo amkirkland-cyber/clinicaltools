@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pediatric Dyslipidemia – Click-Through Tool</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a33; --card:#111f3f; --text:#e9eefc; --muted:#b8c3e6;
+      --accent:#7aa2ff; --danger:#ff6b6b; --ok:#6bffb0; --border:rgba(255,255,255,.12);
+    }
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header{ padding:18px 20px; border-bottom:1px solid var(--border); background:linear-gradient(180deg, rgba(122,162,255,.18), transparent); }
+    header h1{ margin:0; font-size:18px; font-weight:800; letter-spacing:.2px; }
+    header .sub{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.35; }
+
+    .wrap{ display:grid; grid-template-columns: 1fr 460px; gap:16px; padding:16px; max-width:1280px; margin:0 auto; }
+    @media (max-width: 1020px){ .wrap{ grid-template-columns: 1fr; } .sticky{ position:relative; top:auto; } }
+
+    .card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .node-title{ font-size:16px; font-weight:900; margin:0 0 8px 0; }
+    .node-desc{ color:var(--muted); font-size:13px; line-height:1.4; margin:0 0 12px 0; }
+
+    .btnrow{ display:flex; flex-wrap:wrap; gap:10px; }
+    button{
+      appearance:none; border:1px solid var(--border); background:var(--card);
+      color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer;
+      font-weight:750; font-size:13px;
+    }
+    button:hover{ border-color: rgba(122,162,255,.55); box-shadow:0 0 0 3px rgba(122,162,255,.12); }
+    button.danger{ border-color: rgba(255,107,107,.5); }
+    button.danger:hover{ box-shadow:0 0 0 3px rgba(255,107,107,.12); }
+    button.ghost{ background:transparent; }
+    .pill{ display:inline-block; padding:5px 9px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--muted); font-size:12px; }
+
+    .sticky{ position:sticky; top:14px; }
+    .section-title{ font-size:13px; color:var(--muted); letter-spacing:.25px; text-transform:uppercase; margin:0 0 8px 0; }
+    .path{ display:flex; flex-wrap:wrap; gap:8px; }
+    .crumb{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.03); }
+
+    .outbox{ margin-top:10px; border-top:1px solid var(--border); padding-top:10px; }
+    .outbox h3{ margin:0 0 6px 0; font-size:14px; }
+    .muted{ color:var(--muted); }
+
+    details{ border:1px solid var(--border); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,.02); }
+    details summary{ cursor:pointer; font-weight:850; }
+    details .detail{ margin-top:10px; color:var(--muted); font-size:13px; line-height:1.45; }
+    .callout{ border-left:4px solid var(--accent); padding:10px 12px; background:rgba(122,162,255,.08); border-radius:10px; }
+    .callout.danger{ border-left-color: var(--danger); background: rgba(255,107,107,.10); }
+    .callout.ok{ border-left-color: var(--ok); background: rgba(107,255,176,.10); }
+    ul{ margin:8px 0 0 18px; }
+    li{ margin:6px 0; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Pediatric Dyslipidemia – Screening + LDL (Click-Through)</h1>
+  <div class="sub">
+    No numeric entry (physician click-through). TG pathways are placeholders where labeled “Target TG”.
+  </div>
+</header>
+
+<div class="wrap">
+  <main class="card" id="main"></main>
+
+  <aside class="card sticky">
+    <div class="section-title">Path</div>
+    <div class="path" id="path"></div>
+
+    <div class="outbox">
+      <h3>What to do</h3>
+      <div id="plan" class="muted">Choose an option to begin.</div>
+    </div>
+
+    <div class="outbox">
+      <h3>Reference (RFs / Diet)</h3>
+
+      <details>
+        <summary>Risk factors (RFs) & risk conditions (RCs)</summary>
+        <div class="detail">
+          <div class="callout">
+            <b>FHx (+)</b>: MI/angina/CABG/stent/angioplasty/sudden cardiac death in parent/grandparent/aunt/uncle: male &lt;55, female &lt;65.
+          </div>
+
+          <div style="height:10px"></div>
+
+          <b>High-level RFs</b>
+          <ul>
+            <li>Hypertension requiring drug therapy (BP ≥99th%ile + 5 mmHg)</li>
+            <li>Current cigarette smoker</li>
+            <li>BMI ≥97th%ile</li>
+            <li>Presence of <b>high-risk conditions</b> (below)</li>
+          </ul>
+
+          <b>Moderate-level RFs</b>
+          <ul>
+            <li>Hypertension not requiring drug therapy</li>
+            <li>BMI ≥95th%ile and &lt;97th%ile</li>
+            <li>HDL-C &lt;40 mg/dL</li>
+            <li>Presence of <b>moderate-risk conditions</b> (below)</li>
+          </ul>
+
+          <b>High-risk conditions</b>
+          <ul>
+            <li>Diabetes mellitus (Type 1 or Type 2)</li>
+            <li>Homozygous familial hypercholesterolemia (hoFH)</li>
+            <li>Chronic/end-stage renal disease or post-renal transplant</li>
+            <li>Kawasaki disease with persistent coronary aneurysms/stenoses/occlusions</li>
+            <li>Orthotopic heart transplantation</li>
+          </ul>
+
+          <b>Moderate-risk conditions</b>
+          <ul>
+            <li>Familial hypercholesterolemia (FH)</li>
+            <li>Kawasaki disease with regressed coronary aneurysms</li>
+            <li>Chronic inflammatory disease (juvenile rheumatoid arthritis; SLE)</li>
+            <li>HIV</li>
+            <li>Nephrotic syndrome</li>
+          </ul>
+        </div>
+      </details>
+
+      <div style="height:10px"></div>
+
+      <details>
+        <summary>CHILD-1 (baseline diet)</summary>
+        <div class="detail">
+          <ul>
+            <li>Total fat: <b>25–30%</b> daily kcal</li>
+            <li>Saturated fat: <b>8–10%</b> daily kcal</li>
+            <li>Avoid trans fats</li>
+            <li>Mono- and polyunsaturated fat: up to <b>20%</b> daily kcal</li>
+            <li>Cholesterol: <b>&lt;300 mg/day</b></li>
+            <li>Encourage high dietary fiber intake</li>
+            <li>Activity: <b>≥1 hour/day</b> moderate-to-vigorous (children &gt;5y)</li>
+            <li>Primary beverages: fat-free unflavored milk and water</li>
+            <li>Limit/avoid sugar-sweetened beverages; limit 100% juice to <b>≤4 oz/day</b></li>
+          </ul>
+        </div>
+      </details>
+
+      <div style="height:10px"></div>
+
+      <details>
+        <summary>CHILD-2 (your handout) – numeric targets</summary>
+        <div class="detail">
+          <ul>
+            <li>Total fat: <b>25–30%</b> daily calories</li>
+            <li>Saturated fat: <b>≤7%</b> daily calories</li>
+            <li>Monounsaturated fat: <b>~10%</b> daily calories</li>
+            <li>Avoid trans fats</li>
+            <li>Cholesterol: <b>&lt;200 mg/day</b></li>
+            <li>Activity: <b>≥1 hour/day</b> moderate-to-vigorous</li>
+            <li>Screen time: <b>&lt;2 hours/day</b></li>
+            <li>Omega-3 supplement: <b>1–4 g/day</b></li>
+            <li>Psyllium: <b>6 g/day (2–12y)</b>; <b>12 g/day (≥12y)</b></li>
+            <li>Plant stanols/sterols: up to <b>2 g/day</b></li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </aside>
+</div>
+
+<script>
+  const nodes = {
+    start: {
+      title: "Start",
+      desc: "Begin with screening approach (universal vs selective), then proceed as indicated.",
+      plan: ["Pick a screening entry point."],
+      choices: [
+        { label: "Universal screening (ages 9–11 and 17–21): non-fasting panel", next: "nonfasting_universal" },
+        { label: "Selective / focused screening (age 2–8): risk-based", next: "selective_2_8" }
+      ]
+    },
+
+    nonfasting_universal: {
+      title: "Universal non-fasting screening",
+      desc: "Recommended universal screening at ages 9–11 and again at 17–21. Use a non-fasting lipid profile to calculate non-HDL-C (TC − HDL).",
+      plan: [
+        "Screen once at 9–11 years, and once again at 17–21 years.",
+        "If non-HDL-C ≥145 mg/dL OR HDL-C <40 mg/dL → proceed to FLP ×2 (average).",
+        "Otherwise, routine care."
+      ],
+      choices: [
+        { label: "Abnormal screen → proceed to FLP ×2 average", next: "flp_x2" },
+        { label: "Normal screen → stop", next: "stop_normal", cls:"ghost" },
+        { label: "Back", next: "start", cls:"ghost" }
+      ]
+    },
+
+    selective_2_8: {
+      title: "Selective / focused screening (age 2–8)",
+      desc: "No routine lipid screening in ages 2–8, but measure FLP ×2 (average) when clinical indications are present.",
+      planHtml: `
+        <div class="callout">
+          <b>Focused screening indications (age 2–8):</b>
+          <ul>
+            <li>Parent with known dyslipidemia</li>
+            <li>Family history of early CVD</li>
+            <li>Hypertension</li>
+            <li>Obesity</li>
+            <li>Tobacco use</li>
+            <li>Diabetes (type 1 and type 2)</li>
+            <li>Kidney disease</li>
+            <li>Heart transplant</li>
+            <li>Kawasaki disease</li>
+            <li>Chronic inflammatory disease</li>
+            <li>HIV</li>
+            <li>Nephrotic syndrome</li>
+          </ul>
+        </div>
+      `,
+      choices: [
+        { label: "Proceed to FLP ×2 average", next: "flp_x2" },
+        { label: "Back", next: "start", cls:"ghost" }
+      ]
+    },
+
+    stop_normal: {
+      title: "Stop",
+      desc: "Screen is normal / no current indication for algorithm entry.",
+      planHtml: `<div class="callout ok"><b>No further dyslipidemia algorithm steps right now.</b></div>`,
+      choices: [{ label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    flp_x2: {
+      title: "Fasting lipid panels",
+      desc: "Obtain fasting lipid profile (FLP) ×2 and average results (then choose branch).",
+      plan: [
+        "FLP ×2 (average).",
+        "Then choose: Target LDL-C vs Target TG (placeholder), or urgent referral thresholds."
+      ],
+      choices: [{ label: "Continue", next: "split" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    split: {
+      title: "Choose algorithm branch (after FLP ×2 average)",
+      desc: "This is where the NHLBI flow splits to Target LDL-C vs Target TG, plus hard-stop referrals.",
+      plan: ["Pick the pathway that matches the clinical focus."],
+      choices: [
+        { label: "TG ≥500 mg/dL → Consult lipid specialist", next: "stop_tg500", cls:"danger" },
+        { label: "LDL-C ≥250 mg/dL → Consult lipid specialist", next: "stop_ldl250", cls:"danger" },
+        { label: "Target TG (placeholder)", next: "stop_targetTG", cls:"ghost" },
+        { label: "LDL-C ≥130 and <250 mg/dL → Target LDL-C", next: "ldl_130_249" }
+      ]
+    },
+
+    stop_tg500: {
+      title: "Stop",
+      desc: "TG ≥ 500 mg/dL",
+      planHtml: `<div class="callout danger"><b>Consult lipid specialist.</b></div>`,
+      choices: [{ label:"Back", next:"split", cls:"ghost" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    stop_ldl250: {
+      title: "Stop",
+      desc: "LDL-C ≥ 250 mg/dL",
+      planHtml: `<div class="callout danger"><b>Consult lipid specialist.</b></div>`,
+      choices: [{ label:"Back", next:"split", cls:"ghost" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    stop_targetTG: {
+      title: "Target TG",
+      desc: "Placeholder stop (TG decision tree will be built later).",
+      planHtml: `
+        <div class="callout">
+          <b>TG pathway not built yet.</b>
+          <div class="muted">Entry ranges in NHLBI flow: TG ≥100 to &lt;500 (&lt;10y) or ≥130 to &lt;500 (10–19y).</div>
+        </div>
+      `,
+      choices: [{ label:"Back", next:"split", cls:"ghost" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    ldl_130_249: {
+      title: "LDL-C ≥130 and <250 mg/dL",
+      desc: "LDL pathway entry box (you requested: no mention of CHILD-1 here).",
+      plan: [
+        "Exclude secondary causes.",
+        "Evaluate for other risk factors (RFs).",
+        "Start CHILD-2 diet × 6 months.",
+        "Repeat FLP."
+      ],
+      choices: [
+        { label: "Next (after 6 months → repeat FLP)", next: "after_6mo" },
+        { label:"Back", next:"split", cls:"ghost" }
+      ]
+    },
+
+    after_6mo: {
+      title: "After diet/lifestyle trial (repeat FLP)",
+      desc: "Choose the repeat LDL bucket and RF/FHx profile.",
+      plan: ["Select the branch matching the repeat LDL result + RF/FHx context."],
+      choices: [
+        { label: "LDL-C <130 → Continue CHILD-2; repeat FLP ~12 months", next: "plan_ldl_lt130" },
+        { label: "LDL-C 130–189 + FHx (−) and no other RFs → Continue CHILD-2; follow q6 months", next: "plan_130_189_noRF" },
+        { label: "LDL-C ≥190 → Initiate statin therapy", next: "plan_ge190" },
+        { label: "LDL-C 160–189 + FHx (+) OR ≥1 high-level RF/RC OR ≥2 moderate-level RF/RC → Initiate statin therapy", next: "plan_160_189_risk" },
+        { label: "LDL-C 130–159 + (≥2 high-level RF/RC) OR (1 high + ≥2 moderate) OR clinical CVD → Initiate statin therapy", next: "plan_130_159_highrisk" },
+        { label:"Back", next:"ldl_130_249", cls:"ghost" }
+      ]
+    },
+
+    plan_ldl_lt130: {
+      title: "LDL-C <130 mg/dL",
+      desc: "Maintenance branch.",
+      plan: ["Continue CHILD-2.", "Repeat FLP approximately every 12 months."],
+      choices: [{ label:"Back", next:"after_6mo", cls:"ghost" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    plan_130_189_noRF: {
+      title: "LDL-C 130–189 mg/dL (FHx−, no other RFs)",
+      desc: "Diet management branch.",
+      plan: ["Continue CHILD-2.", "Follow every 6 months with FLP and FHx/RF update."],
+      choices: [{ label:"Back", next:"after_6mo", cls:"ghost" }, { label:"Restart", next:"start", cls:"ghost" }]
+    },
+
+    plan_ge190: {
+      title: "Initiate statin therapy (LDL-C ≥190)",
+      desc: "Medication branch.",
+      plan: [
+        "Initiate statin therapy (per your protocol tables).",
+        "Then proceed to the persistent abnormality decision tree if needed."
+      ],
+      choices: [
+        { label:"Next: persistent abnormalities decision tree", next:"persist_tree" },
+        { label:"Back", next:"after_6mo", cls:"ghost" },
+        { label:"Restart", next:"start", cls:"ghost" }
+      ]
+    },
+
+    plan_160_189_risk: {
+      title: "Initiate statin therapy (LDL-C 160–189 + RF/FHx)",
+      desc: "Medication branch.",
+      plan: [
+        "Initiate statin therapy (per your protocol tables).",
+        "Then proceed to the persistent abnormality decision tree if needed."
+      ],
+      choices: [
+        { label:"Next: persistent abnormalities decision tree", next:"persist_tree" },
+        { label:"Back", next:"after_6mo", cls:"ghost" },
+        { label:"Restart", next:"start", cls:"ghost" }
+      ]
+    },
+
+    plan_130_159_highrisk: {
+      title: "Initiate statin therapy (LDL-C 130–159 + high-risk profile/clinical CVD)",
+      desc: "Medication branch.",
+      plan: [
+        "Initiate statin therapy (per your protocol tables).",
+        "Then proceed to the persistent abnormality decision tree if needed."
+      ],
+      choices: [
+        { label:"Next: persistent abnormalities decision tree", next:"persist_tree" },
+        { label:"Back", next:"after_6mo", cls:"ghost" },
+        { label:"Restart", next:"start", cls:"ghost" }
+      ]
+    },
+
+    /* --- Persistent abnormalities split into TWO separate branches (your request) --- */
+    persist_tree: {
+      title: "Persistent abnormalities (decision tree)",
+      desc: "This is a separate decision step after ongoing monitoring / therapy.",
+      plan: ["Choose the situation that applies."],
+      choices: [
+        { label: "LDL-C still ≥130 mg/dL AND TG <200 mg/dL", next: "persist_ldl130_tglt200" },
+        { label: "non-HDL-C ≥145 mg/dL AFTER effective LDL-C control", next: "persist_nonhdl145" },
+        { label: "Back", next: "after_6mo", cls:"ghost" },
+        { label: "Restart", next: "start", cls:"ghost" }
+      ]
+    },
+
+    persist_ldl130_tglt200: {
+      title: "Persistent LDL-C elevation (TG <200)",
+      desc: "Downstream action branch.",
+      planHtml: `
+        <div class="callout ok">
+          <b>Action:</b> Refer to lipid specialist for addition of a second lipid-lowering agent; monitor per guidance.
+        </div>
+      `,
+      choices: [
+        { label:"Back", next:"persist_tree", cls:"ghost" },
+        { label:"Restart", next:"start", cls:"ghost" }
+      ]
+    },
+
+    persist_nonhdl145: {
+      title: "Persistent non-HDL elevation after LDL control",
+      desc: "This branch exits to the TG pathway (placeholder for now).",
+      planHtml: `
+        <div class="callout">
+          <b>Action:</b> Target TG (TG pathway to be built).
+        </div>
+      `,
+      choices: [
+        { label:"Exit: Target TG (placeholder)", next:"stop_targetTG", cls:"ghost" },
+        { label:"Back", next:"persist_tree", cls:"ghost" },
+        { label:"Restart", next:"start", cls:"ghost" }
+      ]
+    }
+  };
+
+  let state = { nodeId: "start", path: ["start"] };
+
+  function render(){
+    const node = nodes[state.nodeId];
+    const main = document.getElementById("main");
+    const pathEl = document.getElementById("path");
+    const planEl = document.getElementById("plan");
+
+    main.innerHTML = `
+      <div class="pill">Screening → LDL</div>
+      <h2 class="node-title">${node.title}</h2>
+      <p class="node-desc">${node.desc || ""}</p>
+      ${node.planHtml ? node.planHtml : ""}
+      ${node.plan ? `<div class="callout"><ul>${node.plan.map(x=>`<li>${x}</li>`).join("")}</ul></div>` : ""}
+      <div style="height:12px"></div>
+      <div class="btnrow">
+        ${(node.choices||[]).map(c=>{
+          const cls = c.cls ? c.cls : "";
+          const classAttr = cls ? `class="${cls}"` : "";
+          return `<button ${classAttr} onclick="go('${c.next}')">${c.label}</button>`;
+        }).join("")}
+      </div>
+    `;
+
+    pathEl.innerHTML = state.path.map(id => `<span class="crumb">${nodes[id].title}</span>`).join("");
+
+    let planHTML = "";
+    if(node.planHtml){
+      planHTML = node.planHtml;
+    } else if(node.plan){
+      planHTML = `<ul>${node.plan.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+    } else {
+      planHTML = `<div class="muted">Choose an option.</div>`;
+    }
+    planEl.innerHTML = planHTML;
+  }
+
+  function go(nextId){
+    state.nodeId = nextId;
+    if(nextId === "start"){
+      state.path = ["start"];
+    } else {
+      const idx = state.path.indexOf(nextId);
+      if(idx !== -1){
+        state.path = state.path.slice(0, idx+1);
+      } else {
+        state.path.push(nextId);
+      }
+    }
+    render();
+  }
+
+  render();
+</script>
+</body>
+</html>

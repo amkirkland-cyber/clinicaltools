@@ -1,0 +1,3012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NAP Playbook</title>
+<style>
+ :root { --bg:#f7f8fb; --card:#fff; --line:#e5e7eb; --muted:#6b7280; --text:#0f172a; --accent:#2563eb; --accent2:#0ea5e9; --accent3:#10b981; --accent4:#7c3aed; }
+ *{box-sizing:border-box} html,body{height:100%}
+ body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+ .wrap{max-width:980px;margin:0 auto;padding:20px}
+ h1{margin:0 0 12px;font-size:26px}
+ .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+ .panel{padding:14px}
+ .controls{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}
+ .span-2{grid-column:span 2}
+ label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
+ select{width:100%;appearance:none;background:#fff;border:1px solid var(--line);color:var(--text);padding:10px;border-radius:10px}
+ .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+ .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:13px;background:#fff}
+ .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+ @media (max-width: 860px){.grid{grid-template-columns:1fr}}
+ .tasks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+ .tasks .card{min-height:110px}
+ .notes{white-space:pre-wrap}
+ .hr{height:1px;background:var(--line);margin:12px 0}
+ .notice{background:#fff8e1;border:1px solid #fde68a;color:#92400e;padding:8px 10px;border-radius:10px;font-size:14px}
+ .heading{font-weight:700;margin-bottom:6px}
+ .h-primary{color:var(--accent)} .h-secondary{color:var(--accent2)} .h-tertiary{color:var(--accent3)} .h-notes{color:var(--accent4)}
+ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px} th,td{border:1px solid var(--line);padding:8px;vertical-align:top;background:#fff} th{background:#f3f4f6;text-align:left}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>NAP Playbook</h1>
+ <div class="card panel" style="margin-bottom:14px">
+ <div class="row" style="gap:8px">
+ <span class="pill"><span class="muted">Play:</span> <b id="playName">—</b></span>
+ <span class="pill"><span class="muted">Play Call:</span> <b id="funName">—</b></span>
+ </div>
+ </div>
+ <div class="card panel">
+ <div class="controls">
+ <div class="span-2"><label>Providers</label><select id="providers"></select></div>
+ <div class="span-2"><label>RNs</label><select id="rns"></select></div>
+ <div class="span-2"><label>MAs</label><select id="mas"></select></div>
+ <div class="span-2"><label>Role</label><select id="role">
+ <option>Provider</option><option>RN</option><option>MA</option>
+ <option>PSR</option><option>OM</option>
+ </select></div>
+ </div>
+ </div>
+ <div class="grid" style="margin-top:14px">
+ <div class="card panel">
+ <div id="emptyNotice" class="notice" style="display:none">No tasks found for this exact RN/MA play.</div>
+ <div class="tasks" style="margin-top:10px">
+ <div class="card panel"><div class="heading h-primary">Primary</div><div id="primary">—</div></div>
+ <div class="card panel"><div class="heading h-secondary">Secondary</div><div id="secondary">—</div></div>
+ <div class="card panel"><div class="heading h-tertiary">Tertiary</div><div id="tertiary">—</div></div>
+ </div>
+ <div class="hr"></div>
+ <div class="heading h-notes">Notes</div>
+ <div id="notes" class="notes">—</div>
+ <div class="hr"></div>
+ <div class="heading">Full Play Details</div>
+ <div id="fullDetails">—</div>
+ </div>
+ <div class="card panel">
+ <div style="font-weight:600">Always True</div>
+ <div id="alwaysTrue" class="notes">—</div>
+ </div>
+ </div>
+</div>
+
+<script>
+/* =============================================================================
+ NAP PLAYBOOK DATA (embedded JSON)
+ -----------------------------------------------------------------------------
+ To update manually:
+ 1) Select everything between the markers below (inclusive of braces).
+ 2) Paste new JSON from your latest Excel export (using the provided script).
+ 3) Save this HTML. Done.
+
+ >>> BEGIN MARKERS — DO NOT CHANGE THESE LINES <<<
+ ===== PLAYBOOK_JSON_START =====
+{
+ "model": {
+ "columns": [
+ "Play",
+ "Provider",
+ "RN",
+ "MA",
+ "PSR",
+ "OM",
+ "Notes"
+ ],
+ "sheets": {
+ "4 Providers": {
+ "plays": [
+ {
+ "name": "3 RN 5 MAs",
+ "rn": 3,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 5 MAs",
+ "rn": 2,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 5 MAs",
+ "rn": 1,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 5 MAs",
+ "rn": 0,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 4 MAs",
+ "rn": 3,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 4 MAs",
+ "rn": 2,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 4 MAs",
+ "rn": 1,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 4 MAs",
+ "rn": 0,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 3 MAs",
+ "rn": 3,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 3 MAs",
+ "rn": 2,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 3 MAs",
+ "rn": 1,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 3 MAs",
+ "rn": 0,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 2 MAs",
+ "rn": 3,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 2 MAs",
+ "rn": 2,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 2 MAs",
+ "rn": 1,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 2 MAs",
+ "rn": 0,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 1 MAs",
+ "rn": 3,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 1 MAs",
+ "rn": 2,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 1 MAs",
+ "rn": 1,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 1 MAs",
+ "rn": 0,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 0 MAs",
+ "rn": 3,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 0 MAs",
+ "rn": 2,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 0 MAs",
+ "rn": 1,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 0 MAs",
+ "rn": 0,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ }
+ ]
+ },
+ "3 Providers": {
+ "plays": [
+ {
+ "name": "3 RN 5 MAs",
+ "rn": 3,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 5 MAs",
+ "rn": 2,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 5 MAs",
+ "rn": 1,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 5 MAs",
+ "rn": 0,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 4 MAs",
+ "rn": 3,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 4 MAs",
+ "rn": 2,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 4 MAs",
+ "rn": 1,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 4 MAs",
+ "rn": 0,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 3 MAs",
+ "rn": 3,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 3 MAs",
+ "rn": 2,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients\n",
+ "rn": "Triage/Mychart msgs\n",
+ "ma": "Rooming patients\n",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "Management duties",
+ "rn": "Assist Roomers when prompted.",
+ "ma": "Assist other Roomers\nAssist PSR when understaffed if possible\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "PAs; forms; \nother personal duties as assigned\nDowntime list",
+ "ma": "Forms and records\nRestocking\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 Rooming"
+ },
+ {
+ "name": "1 RN 3 MAs",
+ "rn": 1,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "Triage/Mychart msgs\n",
+ "ma": "Rooming patients\n",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "Assist triage if RN is unable",
+ "rn": "AssistRoomerwhen prompted.",
+ "ma": "Assist other Roomer s\nAssist PSR when understaffed if possible",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Management duties",
+ "rn": "PAs; forms; \nother personal duties as assigned\nDowntime list",
+ "ma": "Forms and records\nRestocking\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 Rooming"
+ },
+ {
+ "name": "0 RN 3 MAs",
+ "rn": 0,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "-",
+ "ma": "Rooming patients\n",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Routh triage VM and Mychart to docs .\n\n\n"
+ },
+ "secondary": {
+ "provider": "Respond to triage VM and Mychart",
+ "rn": "-",
+ "ma": "Assisting other Roomer s\nForms and records\nRestocking",
+ "psr": "workques, proactive calls to NP's on schedules, patient reachout for overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Management duties",
+ "rn": "-",
+ "ma": "Downtime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\n\nHuddle at end of morning\n\nUrgent Medical Supply needs will be sent to OM for ordering - order must be placed by 2pm for next day deliery."
+ },
+ {
+ "name": "3 RN 2 MAs",
+ "rn": 3,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RNs 2 MAs",
+ "rn": 2,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "Triage/ Mychart msgs . One RN will room.",
+ "ma": "Rooming Patients;",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "Assist triage if RN is unable",
+ "rn": "Assisting in Clinic as requested by Roomers or Providers",
+ "ma": "Assisting other Roomer s\nForms and records\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Management duties",
+ "rn": "PAs; forms; \nother duties as assigned",
+ "ma": "Forms and records",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\n\nRNs will decide who rooms. Only one RN rooming per session"
+ },
+ {
+ "name": "1 RN 2 MAs",
+ "rn": 1,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "Triage/Mychart msgs.\n",
+ "ma": "Room 3:2 ratio\nNVs",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Assist Roomers as needed to maintain clinic flow"
+ },
+ "secondary": {
+ "provider": "Assist Roomers",
+ "rn": "Assist Roomers",
+ "ma": "Assist other roomer",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Assist triage if RN is unable",
+ "rn": "PAs, forms, other duties as assigned",
+ "ma": "Restocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "3:2 rooming\n\nHuddle at end of morning"
+ },
+ {
+ "name": "0 RN 2 MAs",
+ "rn": 0,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "",
+ "ma": "Room 3:2 ratio\nNVs",
+ "psr": "Place holds on 5 spots per affected session. Leave more open for less busy doc\nCheckin/out patients\nScheduling",
+ "om": "Route triage VM and Mychart to docs .\n\n\n"
+ },
+ "secondary": {
+ "provider": "Assist Roomers",
+ "rn": "",
+ "ma": "Assist other Roomers\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Respond to triage VM and Mychart",
+ "rn": "",
+ "ma": "Restocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "3:2 rooming\n\nHuddle at end of morning\n\nUrgent Medical Supply needs will be sent to OM for ordering - order must be placed by 2pm for next day deliery."
+ },
+ {
+ "name": "3 RN 1 MAs",
+ "rn": 3,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 1 MAs",
+ "rn": 2,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "Triage/ Mychart msgs . One RN will room. 3:2 ratio",
+ "ma": "Rooming 3:2 ratio\nNV",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "Assist Roomers",
+ "rn": "Assist roomers",
+ "ma": "Assisting other Roomer s\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "Assist triage if RN is unable",
+ "rn": "PAs; forms; other duties as assigned",
+ "ma": "Forms and records",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "3:2 rooming\n\nHuddle at end of morning\n\nRNs will decide who rooms. Only one RN rooming per session\nTwo roomers total."
+ },
+ {
+ "name": "1 RN 1 MAs",
+ "rn": 1,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "Room 3:2 ratio",
+ "ma": "Room 3:2 ratio",
+ "psr": "Place holds on 5 spots per affected session. Leave more open for less busy doc\nCheckin/out patients\nScheduling",
+ "om": "Route traige VM and Mychart to docs"
+ },
+ "secondary": {
+ "provider": "Assist Roomers",
+ "rn": "Triage VM/Mychart",
+ "ma": "Assist other Roomer",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": "assist with urgent forms"
+ },
+ "tertiary": {
+ "provider": "Respond to triage VM and Mychart",
+ "rn": "Assisting in Clinic as requested by Roomers or Providers",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "3:2 rooming\n\nHuddle at end of morning\n\n"
+ },
+ {
+ "name": "0 RN 1 MAs",
+ "rn": 0,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 0 MAs",
+ "rn": 3,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 0 MAs",
+ "rn": 2,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "See Patients",
+ "rn": "2 RN's will Room 3:2",
+ "ma": "",
+ "psr": "Place holds on 5 spots per affected session. Leave more open for less busy doc\nCheckin/out patients\nScheduling",
+ "om": "Route triage VM and Mychart to docs"
+ },
+ "secondary": {
+ "provider": "Assist Roomers",
+ "rn": "Triage VM/Mychart",
+ "ma": "",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": "assist with urgent forms"
+ },
+ "tertiary": {
+ "provider": "Respond to triage VM and Mychart",
+ "rn": "PAs/forms/other duties as assigned",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "3:2 rooming\n\nHuddle at end of morning"
+ },
+ {
+ "name": "1 RN 0 MAs",
+ "rn": 1,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 0 MAs",
+ "rn": 0,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ }
+ ]
+ },
+ "2 Providers": {
+ "plays": [
+ {
+ "name": "3 RN 5 MAs",
+ "rn": 3,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 5 MAs",
+ "rn": 2,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 5 MAs",
+ "rn": 1,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 5 MAs",
+ "rn": 0,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 4 MAs",
+ "rn": 3,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 4 MAs",
+ "rn": 2,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 4 MAs",
+ "rn": 1,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 4 MAs",
+ "rn": 0,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 3 MAs",
+ "rn": 3,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "test",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "test",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 3 MAs",
+ "rn": 2,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs",
+ "ma": "rooming\nExtra MA helps notify patients if a doctor has cancelled, after that one may go home",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assisting in Clinic as requested by Roomers or Providers",
+ "ma": "Assisting other Roomers\nForms and records\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "Prior Authorizations; forms; \nother personal duties as assigned",
+ "ma": "Assisting scheduling patients due for WCC",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "1 RN 3 MAs",
+ "rn": 1,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming\nextra MA help notify patients if a doctor has cancelled, then assists RN if needed",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assisting in Clinic as requested by Roomers or Providers",
+ "ma": "Assisting other Roomers\nRestocking\nOne Roomer Roomery go home",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "Prior Authorizations; forms; \nother duties as assigned",
+ "ma": "Forms and records\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "0 RN 3 MAs",
+ "rn": 0,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Rooming\nExtra MA helps address VM/msgs including live answering if possible",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Route VM/msgs to docs"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Assisting other Roomers\nRestocking",
+ "psr": "Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Forms and records\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "3 RN 2 MAs",
+ "rn": 3,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 2 MAs",
+ "rn": 2,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assisting as requested by Roomers",
+ "ma": "Assisting other Roomers\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "PAs; forms; \nOther personal duties as assigned",
+ "ma": "Forms and records\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "1 RN 2 MAs",
+ "rn": 1,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assisting as requested by Roomers",
+ "ma": "Assisting other Roomers\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "PAs; forms; \nOther personal duties as assigned",
+ "ma": "Forms and records\nDowntime list",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "0 RN 2 MAs",
+ "rn": 0,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "\n",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Route VM/msgs to docs"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Assisting other Roomer\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Assist with VM/Triage",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\n\nHuddle at end of morning\n\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "3 RN 1 MAs",
+ "rn": 3,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 1 MAs",
+ "rn": 2,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\nOne RN will room.",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "PAs; forms; \nother duties as assigned",
+ "ma": "Assisting other Roomer\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "assisting as requested by roomers for tasks requiring an RN",
+ "ma": "Forms and records\nRestocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming\nIf a doc is out unexpectedly then calling and rescheduling is a priority."
+ },
+ {
+ "name": "1 RN 1MA",
+ "rn": 1,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "Rooming",
+ "ma": "Rooming. Try to take some load off RN if possible so they can triage",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Route VM/msgs only if necessary"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "VM/MSG, can forward to docs if necessary",
+ "ma": "Assist triage if needed",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "restocking/forms only if absolutely necessary",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming, but OM and MA will attempt to assist rooming RN so they can address triage.\nIf a doc is out unexpectedly then calling and rescheduling is a priority. \n\nHuddle at end of morning"
+ },
+ {
+ "name": "0 RN 1 MAs",
+ "rn": 0,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 0 MAs",
+ "rn": 3,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 0 MAs",
+ "rn": 2,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "Both RNs room\n",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Route VM/msgs only if necessary; Assist with urgent forms"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "VM/Triage. Can forward to docs if necessary",
+ "ma": "",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "1:1 rooming, OM will assist 1 RN so they can address triage.\nIf a doc is out unexpectedly then calling and rescheduling is a priority. \n\nHuddle at end of morning"
+ },
+ {
+ "name": "1 RN 0 MAs",
+ "rn": 1,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 0 MAs",
+ "rn": 0,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ }
+ ]
+ },
+ "1 Provider": {
+ "plays": [
+ {
+ "name": "3 RN 5 MAs",
+ "rn": 3,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 5 MAs",
+ "rn": 2,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 5 MAs",
+ "rn": 1,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 5 MAs",
+ "rn": 0,
+ "ma": 5,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 4 MAs",
+ "rn": 3,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 4 MAs",
+ "rn": 2,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "1 RN 4 MAs",
+ "rn": 1,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "0 RN 4 MAs",
+ "rn": 0,
+ "ma": 4,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "3 RN 3 MAs",
+ "rn": 3,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 3 MAs",
+ "rn": 2,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "Overstaffed\nIf a doctor has called off, then make sure patients are called. \nStaff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR"
+ },
+ {
+ "name": "1 RN 3 MAs",
+ "rn": 1,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "Overstaffed\nIf a doctor has called off, then make sure patients are called. \nStaff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR"
+ },
+ {
+ "name": "0 RN 3 MA",
+ "rn": 0,
+ "ma": 3,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Route VM/msgs to doc and answer with phsycian guidance",
+ "psr": "Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "-",
+ "ma": "Forms/Records\nRestocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "Overstaffed\nIf a doctor has called off, then make sure patients are called. \nStaf can voluntarily go home if there is at least 1 person other than OM to help with triage, 1 Roomer, 1 PSR"
+ },
+ {
+ "name": "3 RN 2 MAs",
+ "rn": 3,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 2 MAs",
+ "rn": 2,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "Overstaffed\nIf a doctor has called off, then make sure patients are called. \nStaff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR"
+ },
+ {
+ "name": "1 RN 2 MA",
+ "rn": 1,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming\nIf a doctor has called off then 1 MA help call patients then may go home voluntarily with OM approval",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": "Assist PSR"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assist Roomer if RN required",
+ "ma": "Assist other roomer as needed\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "Prior Authorizations; forms; \nother duties as assigned",
+ "ma": "Form/record, restocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "0 RN 2 MAs",
+ "rn": 0,
+ "ma": 2,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "1 MA Room\n1 MA assist with VM/msgs",
+ "psr": "Checkin/out patients\nScheduling",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Assist other MA as necessary\n",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Form/record, restocking",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "3 RN 1 MAs",
+ "rn": 3,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 1 MAs",
+ "rn": 2,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming\n",
+ "psr": "Checkin/out patients\nScheduling Call Patients of Canceled Provider Sched.",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Prior Authorizations; forms; \nother duties as assigned",
+ "ma": "Forms and records\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "1 RN 1 MAs",
+ "rn": 1,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n",
+ "ma": "Rooming\n",
+ "psr": "Checkin/out patients\nScheduling Call Patients of Canceled Provider Sched.",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assist Roomer as needed",
+ "ma": "Forms/Records\nRestocking",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "Prior Authorizations; forms; \nother duties as assigned",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "0 RN 1 MAs",
+ "rn": 0,
+ "ma": 1,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Rooming",
+ "psr": "Checkin/out patients\nScheduling Call Patients of Canceled Provider Sched.",
+ "om": "Route VM/msgs to docs"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Assist triage",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "Restocking only as needed",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "3 RN 0 MAs",
+ "rn": 3,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ },
+ {
+ "name": "2 RN 0 MAs",
+ "rn": 2,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "VM/msgs\n1 RN room",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling Call Patients of Canceled Provider Sched.",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "Assist other RN",
+ "ma": "",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "PA, Forms/records",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "If a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "1 RN 0 MAs",
+ "rn": 1,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "Rooming\n",
+ "ma": "",
+ "psr": "Checkin/out patients\nScheduling Call Patients of Canceled Provider Sched.",
+ "om": "Route VM/msgs to docs"
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "VM/msgs",
+ "ma": "",
+ "psr": "workqueues\nProactive calls to NP's,\nSchedule overdue patients",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "other assigned tasks by OM",
+ "om": ""
+ }
+ },
+ "notes": "if a doctor has called off then make sure patients have been called."
+ },
+ {
+ "name": "0 RN 0 MAs",
+ "rn": 0,
+ "ma": 0,
+ "tasks": {
+ "primary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "secondary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ },
+ "tertiary": {
+ "provider": "",
+ "rn": "",
+ "ma": "",
+ "psr": "",
+ "om": ""
+ }
+ },
+ "notes": ""
+ }
+ ]
+ }
+ },
+ "alwaysTrue": "Always prioritize clinic flow if unsure of what to do.\n\nOM will always assist PSRs as necessary if understaffed in order to maintain patient flow.\n\nIf help is needed the responsibility is on the person needing help to ask directly, in person, and verify that your request was heard. \n\nIf there is a single PSR, then Roomer should check patient out and schedule necessary follow up\n\nDefinitions:\nRooming: implies everything from the beginning of rooming till the patient is leaving for checkout and nurse visits. \n\ntest"
+ },
+ "alwaysTrue": "Always prioritize clinic flow if unsure of what to do.\n\nOM will always assist PSRs as necessary if understaffed in order to maintain patient flow.\n\nIf help is needed the responsibility is on the person needing help to ask directly, in person, and verify that your request was heard. \n\nIf there is a single PSR, then Roomer should check patient out and schedule necessary follow up\n\nDefinitions:\nRooming: implies everything from the beginning of rooming till the patient is leaving for checkout and nurse visits. \n\ntest"
+}
+===== PLAYBOOK_JSON_END =====
+ >>> END MARKERS — DO NOT CHANGE THESE LINES <<<
+ ============================================================================= */
+
+// Parse the embedded JSON between markers
+(function() {
+ const raw = document.currentScript.textContent;
+ const start = raw.indexOf('===== PLAYBOOK_JSON_START =====');
+ const end = raw.indexOf('===== PLAYBOOK_JSON_END =====');
+ if (start === -1 || end === -1) throw new Error('JSON markers not found.');
+ const jsonText = raw.slice(start + '===== PLAYBOOK_JSON_START ====='.length, end).trim();
+ window.__PLAYBOOK__ = JSON.parse(jsonText);
+})();
+
+// App code (same UI & behavior as your favorite version)
+function funNameFor(rn, ma){
+ const formations = ["Blitz","Hail Mary","Shotgun","Option","Sweep","Bootleg","Screen","Draw","Power","Counter"];
+ const idx = ((rn||0)*7 + (ma||0)*13) % formations.length;
+ const staff = [ (rn!=null? rn + " RN" : null), (ma!=null? ma + " MA" : null) ].filter(Boolean).join(" & ") || "Empty Set";
+ return formations[idx] + " – " + staff;
+}
+
+let MODEL = (window.__PLAYBOOK__.model || window.__PLAYBOOK__);
+let ALWAYS = window.__PLAYBOOK__.alwaysTrue || "";
+
+const el = id => document.getElementById(id);
+const providersEl = el('providers'), rnsEl = el('rns'), masEl = el('mas'), roleEl = el('role');
+const playNameEl = el('playName'), funNameEl = el('funName');
+const primaryEl = el('primary'), secondaryEl = el('secondary'), tertiaryEl = el('tertiary'), notesEl = el('notes');
+const alwaysEl = el('alwaysTrue'), emptyNotice = el('emptyNotice'), fullDetailsEl = el('fullDetails');
+
+function fill(sel, min, max, def){ sel.innerHTML=''; for(let i=min;i<=max;i++){ const o=document.createElement('option'); o.value=o.textContent=String(i); if(i===def) o.selected=true; sel.appendChild(o);} }
+function initControls(){ fill(providersEl,1,4,4); fill(rnsEl,0,3,0); fill(masEl,0,5,0); roleEl.value='Provider'; }
+
+function findSheet(n){
+ const names = Object.keys(MODEL?.sheets||{});
+ const lc = s => s.toLowerCase();
+ let s = names.find(x => lc(x).startsWith(String(n)) && (lc(x).includes('provider')||lc(x).includes('doctor')));
+ if(!s) s = names.find(x => lc(x).startsWith(String(n)));
+ return s || null;
+}
+function exactPlay(plays, rn, ma){ return plays.find(p => p.rn===rn && p.ma===ma) || null; }
+function normRole(r){ return (r||'').toLowerCase().trim(); }
+function tasksFor(play, role){
+ const key = normRole(role);
+ const tier = t => (play && play.tasks && play.tasks[t] && play.tasks[t][key]) ? play.tasks[t][key] : '—';
+ return {primary:tier('primary'), secondary:tier('secondary'), tertiary:tier('tertiary')};
+}
+
+function renderFullDetails(play){
+ if(!play || !play.tasks){ fullDetailsEl.textContent = '—'; return; }
+ const roles = ['provider','rn','ma','psr','om'];
+ const headers = ['Tier','Provider','RN','MA','PSR','OM'];
+ const rows = ['primary','secondary','tertiary'];
+ const esc = (s)=> (s==null||String(s).trim()==='') ? '—' : String(s);
+
+ let html = '<table><thead><tr>';
+ for(const h of headers){ html += '<th>' + h + '</th>'; }
+ html += '</tr></thead><tbody>';
+ for(const tier of rows){
+ html += '<tr><th>'+tier.charAt(0).toUpperCase()+tier.slice(1)+'</th>';
+ for(const r of roles){ html += '<td>'+ esc(play.tasks?.[tier]?.[r]) +'</td>'; }
+ html += '</tr>';
+ }
+ html += '</tbody></table>';
+ if (play.notes && String(play.notes).trim()!==''){
+ html += '<div class="hr"></div><div class="heading h-notes">Notes</div><div class="notes">'+play.notes+'</div>';
+ }
+ fullDetailsEl.innerHTML = html;
+}
+
+function refresh(){
+ const p = Number(providersEl.value||4), rn = Number(rnsEl.value||0), ma = Number(masEl.value||0), role = roleEl.value||'Provider';
+ const sheet = findSheet(p);
+
+ if(!sheet || !MODEL?.sheets?.[sheet]){
+ playNameEl.textContent = '—'; funNameEl.textContent = '—';
+ primaryEl.textContent = secondaryEl.textContent = tertiaryEl.textContent = '—';
+ notesEl.textContent = '—'; emptyNotice.style.display = 'none'; fullDetailsEl.textContent = '—'; alwaysEl.textContent = ALWAYS || '—';
+ return;
+ }
+ const plays = MODEL.sheets[sheet].plays || [];
+ const play = exactPlay(plays, rn, ma);
+
+ playNameEl.textContent = play ? (play.name || '—') : '—';
+ const fn = (play && play.funName) ? play.funName : funNameFor(play?.rn, play?.ma);
+ funNameEl.textContent = play ? (fn || '—') : '—';
+
+ if(!play){
+ primaryEl.textContent = secondaryEl.textContent = tertiaryEl.textContent = '—';
+ notesEl.textContent = '—'; emptyNotice.style.display = 'none'; fullDetailsEl.textContent = '—'; alwaysEl.textContent = ALWAYS || '—';
+ return;
+ }
+
+ const t = tasksFor(play, role);
+ primaryEl.textContent = t.primary || '—'; secondaryEl.textContent = t.secondary || '—'; tertiaryEl.textContent = t.tertiary || '—';
+ notesEl.textContent = play.notes || '—';
+ const allBlank = [t.primary,t.secondary,t.tertiary, play.notes||''].every(v => !v || String(v).trim()==='' || String(v).trim()==='—');
+ emptyNotice.style.display = allBlank ? 'block' : 'none';
+
+ renderFullDetails(play);
+ alwaysEl.textContent = ALWAYS || '—';
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{ initControls(); ['change'].forEach(evt => { providersEl.addEventListener(evt,refresh); rnsEl.addEventListener(evt,refresh); masEl.addEventListener(evt,refresh); roleEl.addEventListener(evt,refresh); }); refresh(); });
+</script>
+</body>
+</html>
+
+
