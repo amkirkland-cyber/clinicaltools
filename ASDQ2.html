@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASDQ — Interactive Parent Form + Print Summary</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.35; }
+  h1 { margin: 0 0 8px; }
+  .meta { color: #555; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: 40px 1fr; gap: 12px 16px; }
+  .item { display: contents; }
+  .qnum { font-weight: 600; text-align: right; }
+  .qtext { margin-bottom: 6px; }
+  .opts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 8px; }
+  label.opt { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; }
+  label.opt input[type="radio"] { transform: scale(1.2); }
+  .panel { margin-top: 24px; padding: 16px; border: 1px solid #ddd; border-radius: 12px; background: #fafafa; }
+  .scores { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 14px; }
+  .scores h3 { grid-column: 1 / -1; margin: 8px 0; }
+  .subscores table { border-collapse: collapse; width: 100%; }
+  .subscores th, .subscores td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  .subscores th { background: #f0f0f0; }
+  .badge { display:inline-block; padding:2px 8px; border-radius: 12px; background:#eee; font-size: 12px; }
+  .footer { color: #666; font-size: 12px; margin-top: 12px; }
+  .warn { color: #b22222; font-weight: 600; }
+  .ok { color: #196127; font-weight: 600; }
+  button { padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+  button:hover { background: #f5f5f5; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field input { padding:8px 10px; border:1px solid #ccc; border-radius:8px; min-width: 220px; }
+  /* Print rules: when printing, show only #printArea */
+  @media print {
+    body * { visibility: hidden !important; }
+    #printArea, #printArea * { visibility: visible !important; }
+    #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+  <h1>Autism Symptom Dimensions Questionnaire (ASDQ)</h1>
+  <div class="meta">Parent/Caregiver form — 39 items — 5-point Likert (Never → Very often) plus Not applicable — scored 0–4</div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field"><label>Child name</label><input id="childName" placeholder="First Last"></div>
+      <div class="field"><label>Date of birth</label><input id="dob" placeholder="YYYY-MM-DD"></div>
+      <div class="field"><label>Rater name</label><input id="rater" placeholder="Parent/Guardian"></div>
+      <div class="field"><label>Relationship</label><input id="relation" placeholder="Mother, Father, etc."></div>
+      <div class="field"><label>Date</label><input id="date" placeholder="YYYY-MM-DD"></div>
+    </div>
+    <p style="margin-top:10px;"><strong>Instructions.</strong> Please rate how often the child does each behavior. If an item does not apply (e.g., too young, non-speaking, or insufficient information), choose <em>Not applicable</em>. Scores and subscale averages exclude Not applicable responses.</p>
+    <details>
+      <summary><strong>Subscales (DSM-5 terms)</strong></summary>
+      <ul>
+        <li><strong>Basic social communication (DSM-5 A2)</strong>: items 1, 4, 5, 6, 8, 10, 11</li>
+        <li><strong>Affiliation / social motivation (DSM-5 A1/A3)</strong>: items 2, 3, 15</li>
+        <li><strong>Perspective taking / reciprocity (DSM-5 A1)</strong>: items 7, 12, 13, 14</li>
+        <li><strong>Peer relationships (DSM-5 A3)</strong>: items 9, 16, 17</li>
+        <li><strong>Repetitive motor behavior (DSM-5 B1)</strong>: items 18, 19, 20, 21</li>
+        <li><strong>Sensory interests (DSM-5 B4)</strong>: items 29, 30, 31</li>
+        <li><strong>Insistence on sameness (DSM-5 B2)</strong>: items 22, 23, 24, 25</li>
+        <li><strong>Sensory sensitivities (DSM-5 B4)</strong>: items 26, 27, 28</li>
+        <li><strong>Restricted interests (DSM-5 B3)</strong>: items 32, 33, 34, 35</li>
+      </ul>
+      <p class="footer">Items 36–39 contribute to the total score only (not assigned to a specific subscale in the published CFA model).</p>
+    </details>
+  </div>
+
+  <form id="asdqForm" class="grid">
+    
+      <div class="item">
+        <div class="qnum">1.</div>
+        <div class="qtext">Start interactions with others without prompting?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q1" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q1" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q1" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q1" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q1" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q1" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">2.</div>
+        <div class="qtext">Prefer to be with family or friends rather than alone?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q2" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q2" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q2" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q2" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q2" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q2" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">3.</div>
+        <div class="qtext">Try to be physically and emotionally-connected to family and friends?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q3" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q3" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q3" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q3" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q3" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q3" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">4.</div>
+        <div class="qtext">Make expected eye contact? (not too brief, too intense, or looking past people)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q4" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q4" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q4" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q4" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q4" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q4" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">5.</div>
+        <div class="qtext">Use gestures to communicate? (ex. wave, point, nod, shake head)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q5" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q5" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q5" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q5" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q5" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q5" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">6.</div>
+        <div class="qtext">Communicate clearly so that other people know how they feel?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q6" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q6" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q6" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q6" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q6" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q6" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">7.</div>
+        <div class="qtext">Offer comfort to others when they are upset or sick?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q7" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q7" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q7" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q7" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q7" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q7" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">8.</div>
+        <div class="qtext">Share enjoyment about interests or activities with other people?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q8" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q8" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q8" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q8" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q8" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q8" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">9.</div>
+        <div class="qtext">Engage in back and forth play with same-age peers? (ex: playing tag or cops-and-robbers by exchanging roles and allowing others to win OR in adolescents/adults playing turn-taking games or activities that require reciprocal give-and-take)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q9" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q9" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q9" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q9" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q9" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q9" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">10.</div>
+        <div class="qtext">Respond appropriately when others approach them? (ex. smiling, nodding, saying something back)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q10" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q10" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q10" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q10" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q10" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q10" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">11.</div>
+        <div class="qtext">Have a back and forth conversation about another person’s interests and activities, not just their own?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q11" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q11" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q11" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q11" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q11" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q11" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">12.</div>
+        <div class="qtext">Read social cues? (ex. facial expressions, gestures, body language)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q12" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q12" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q12" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q12" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q12" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q12" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">13.</div>
+        <div class="qtext">Understand that expected behavior varies by social situation? (ex: behave differently at the library than at a party)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q13" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q13" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q13" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q13" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q13" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q13" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">14.</div>
+        <div class="qtext">Seem to understand what others are thinking or feeling?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q14" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q14" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q14" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q14" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q14" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q14" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">15.</div>
+        <div class="qtext">Show that relationships are important to them?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q15" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q15" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q15" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q15" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q15" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q15" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">16.</div>
+        <div class="qtext">Seek out playful interactions, playmates, or friendships?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q16" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q16" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q16" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q16" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q16" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q16" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">17.</div>
+        <div class="qtext">Engage with two or more close friends?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q17" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q17" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q17" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q17" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q17" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q17" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">18.</div>
+        <div class="qtext">Flap or move their hands in an unusual way? (ex. claps or flaps their hands or flicks their fingers when they are excited)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q18" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q18" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q18" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q18" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q18" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q18" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">19.</div>
+        <div class="qtext">Repetitively jump, rock their body, spin in circles, or do other whole-body motions?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q19" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q19" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q19" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q19" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q19" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q19" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">20.</div>
+        <div class="qtext">Repeat sounds, words, or lines from videos?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q20" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q20" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q20" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q20" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q20" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q20" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">21.</div>
+        <div class="qtext">Repetitively play with objects or repeat actions without a purpose? (ex. lining up toys, spinning wheels, opening and closing doors, turning lights on and off, etc.)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q21" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q21" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q21" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q21" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q21" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q21" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">22.</div>
+        <div class="qtext">Insist on keeping a consistent daily schedule? (ex. gets upset with changes in the routine)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q22" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q22" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q22" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q22" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q22" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q22" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">23.</div>
+        <div class="qtext">Have difficulty transitioning from one activity to another?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q23" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q23" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q23" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q23" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q23" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q23" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">24.</div>
+        <div class="qtext">Want to follow strict rules, rituals, or sequences?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q24" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q24" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q24" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q24" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q24" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q24" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">25.</div>
+        <div class="qtext">Have trouble changing their mind and being flexible?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q25" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q25" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q25" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q25" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q25" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q25" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">26.</div>
+        <div class="qtext">Appear overly sensitive to loud noises?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q26" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q26" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q26" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q26" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q26" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q26" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">27.</div>
+        <div class="qtext">Get upset in crowded or busy places?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q27" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q27" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q27" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q27" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q27" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q27" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">28.</div>
+        <div class="qtext">Dislike certain lights, sounds, textures, foods, or smells?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q28" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q28" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q28" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q28" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q28" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q28" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">29.</div>
+        <div class="qtext">Prefer to engage with specific parts of objects rather than the whole object? (ex. parts of a toy, small pieces of a game, or parts of electrical equipment)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q29" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q29" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q29" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q29" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q29" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q29" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">30.</div>
+        <div class="qtext">Appear fascinated by sensory experiences? (ex. staring at lights, fans, running water, symmetrical patterns, street signs, falling or dangling objects, textures, smells, etc.)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q30" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q30" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q30" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q30" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q30" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q30" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">31.</div>
+        <div class="qtext">Become preoccupied with visual patterns or sounds? (ex. fascination with the way something looks or moves, excessive focus on certain sounds or videos)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q31" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q31" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q31" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q31" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q31" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q31" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">32.</div>
+        <div class="qtext">Think or talk about the same topic over and over?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q32" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q32" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q32" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q32" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q32" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q32" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">33.</div>
+        <div class="qtext">Seem overly fixated on one interest or activity?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q33" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q33" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q33" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q33" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q33" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q33" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">34.</div>
+        <div class="qtext">Spend too much time on a game or subject that is not interesting to others?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q34" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q34" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q34" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q34" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q34" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q34" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">35.</div>
+        <div class="qtext">Seem too focused on an interest that is highly specific or narrow in scope?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q35" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q35" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q35" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q35" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q35" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q35" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">36.</div>
+        <div class="qtext">Prefer to make lists, memorize facts, or learn about technical subjects?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q36" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q36" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q36" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q36" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q36" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q36" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">37.</div>
+        <div class="qtext">Stand too close or show unexpected body language when interacting with others? (ex: a facial expression that doesn’t match what the person is saying or having their body turned away during conversation)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q37" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q37" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q37" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q37" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q37" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q37" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">38.</div>
+        <div class="qtext">Take things too literally? (ex: not understanding when people are sarcastic, joking, or using figures of speech such as “It’s raining cats and dogs!” Or “A leopard can’t change his spots!”)</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q38" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q38" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q38" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q38" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q38" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q38" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="qnum">39.</div>
+        <div class="qtext">Speak with an unusual volume, tone, rhythm, or rate of speech?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="q39" value="0"><span>Never</span></label>
+          <label class="opt"><input type="radio" name="q39" value="1"><span>Rarely</span></label>
+          <label class="opt"><input type="radio" name="q39" value="2"><span>Sometimes</span></label>
+          <label class="opt"><input type="radio" name="q39" value="3"><span>Often</span></label>
+          <label class="opt"><input type="radio" name="q39" value="4"><span>Very often</span></label>
+          <label class="opt"><input type="radio" name="q39" value="na"><span>Not applicable</span></label>
+        </div>
+      </div>
+    
+  </form>
+
+  <div class="panel">
+    <div class="row">
+      <button id="calcBtn" type="button">Calculate scores</button>
+      <button id="resetBtn" type="button">Clear all</button>
+      <button id="printBtn" type="button">Print summary</button>
+      <button id="pdfBtn" type="button">Download PDF</button>
+      <span id="validMsg"></span>
+    </div>
+
+    <div class="scores">
+      <h3>Overall</h3>
+      <div><strong>Total (raw sum):</strong> <span id="totalRaw">—</span></div>
+      <div><strong>Average (excluding N/A):</strong> <span id="totalAvg">—</span> <span id="totalDenom" class="badge"></span></div>
+
+      <h3>Subscales</h3>
+      <div class="subscores" style="grid-column:1 / -1;">
+        <table>
+          <thead><tr><th>Subscale</th><th>Raw sum</th><th>Average</th><th>Answered / Items</th></tr></thead>
+          <tbody id="subTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="footer">
+      This scoring layout follows the nine-factor structure and DSM-5 alignments described in Frazier et&nbsp;al., 2023 (Dev Med Child Neurol), including item-to-factor mapping and the note that items 36–39 load only on the general factor.
+    </p>
+  </div>
+
+  <!-- Hidden print-only area populated at print time -->
+  <div id="printArea" style="display:block; padding: 8px 0;">
+    <div id="summaryContent"></div>
+  </div>
+
+<!-- PDF library (includes jsPDF + html2canvas) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+
+<script>
+const CONFIG = {"reverse_scored": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "subscales": {"Basic social communication (DSM-5 A2)": [1, 4, 5, 6, 8, 10, 11], "Affiliation / social motivation (DSM-5 A1/A3)": [2, 3, 15], "Perspective taking / reciprocity (DSM-5 A1)": [7, 12, 13, 14], "Peer relationships (DSM-5 A3)": [9, 16, 17], "Repetitive motor behavior (DSM-5 B1)": [18, 19, 20, 21], "Sensory interests (DSM-5 B4)": [29, 30, 31], "Insistence on sameness (DSM-5 B2)": [22, 23, 24, 25], "Sensory sensitivities (DSM-5 B4)": [26, 27, 28], "Restricted interests (DSM-5 B3)": [32, 33, 34, 35]}};
+
+function scoreItem(qnum, raw) {
+  if (raw === null) return null; // N/A
+  const val = parseInt(raw, 10); // 0..4
+  if (isNaN(val)) return null;
+  const reversed = CONFIG.reverse_scored.includes(qnum);
+  return reversed ? (4 - val) : val;
+}
+
+function collectResponses() {
+  const answers = {}, scored = {}, isNA = {};
+  for (let i=1;i<=39;i++) {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!sel) { answers[i] = null; isNA[i]=true; scored[i]=null; continue; }
+    if (sel.value === 'na') { answers[i] = null; isNA[i]=true; scored[i]=null; }
+    else { answers[i] = parseInt(sel.value,10); isNA[i]=false; scored[i] = scoreItem(i, sel.value); }
+  }
+  return {answers, scored, isNA};
+}
+
+function computeTotals(scored, isNA) {
+  let total=0, n=0;
+  for (let i=1;i<=39;i++) {
+    if (isNA[i]) continue;
+    const v = scored[i];
+    if (v!=null) { total += v; n++; }
+  }
+  return {total, n, avg: n? (total/n) : null};
+}
+
+function computeSubscales(scored, isNA) {
+  const out = [];
+  for (const [name, arr] of Object.entries(CONFIG.subscales)) {
+    let t=0, n=0;
+    for (const i of arr) {
+      if (isNA[i]) continue;
+      const v = scored[i];
+      if (v!=null) { t += v; n++; }
+    }
+    out.push({name, total:t, n, k:arr.length, avg: n? (t/n) : null});
+  }
+  return out;
+}
+
+function validate(answers) {
+  const completed = Object.values(answers).filter(v => v!==null).length;
+  if (completed===0) return {ok:false, msg:"No items answered"};
+  return {ok:true, msg:`${completed} of 39 items answered`};
+}
+
+function render() {
+  const {answers, scored, isNA} = collectResponses();
+  const val = validate(answers);
+  const vm = document.getElementById('validMsg');
+  vm.className = val.ok ? 'ok' : 'warn';
+  vm.textContent = val.ok ? `✔ ${val.msg}` : `⚠ ${val.msg}`;
+
+  const tot = computeTotals(scored, isNA);
+  document.getElementById('totalRaw').textContent = tot.n? tot.total.toFixed(0) : '—';
+  document.getElementById('totalAvg').textContent = tot.n? tot.avg.toFixed(2) : '—';
+  document.getElementById('totalDenom').textContent = tot.n? `(n = ${tot.n})` : '';
+
+  const subs = computeSubscales(scored, isNA);
+  const tbody = document.getElementById('subTable');
+  tbody.innerHTML = '';
+  for (const s of subs) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.name}</td>
+                    <td>${s.n? s.total.toFixed(0) : '—'}</td>
+                    <td>${s.n? s.avg.toFixed(2) : '—'}</td>
+                    <td>${s.n} / ${s.k}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  return {tot, subs};
+}
+
+function buildPrintSummary(tot, subs) {
+  const name = document.getElementById('childName').value || '';
+  const dob = document.getElementById('dob').value || '';
+  const rater = document.getElementById('rater').value || '';
+  const relation = document.getElementById('relation').value || '';
+  const date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
+
+  let html = ''
+    + '<div style="font-size:14px;">'
+    +   '<h2 style="margin:0 0 6px;">ASDQ Summary</h2>'
+    +   '<div style="margin-bottom:10px;">'
+    +     '<div><strong>Child:</strong> ' + name + ' &nbsp;&nbsp; <strong>DOB:</strong> ' + dob + '</div>'
+    +     '<div><strong>Rater:</strong> ' + rater + ' (' + relation + ') &nbsp;&nbsp; <strong>Date:</strong> ' + date + '</div>'
+    +   '</div>'
+    +   '<table style="width:100%; border-collapse:collapse; margin-bottom:10px;">'
+    +     '<tr><th style="text-align:left; border:1px solid #ccc; padding:6px;">Overall total</th>'
+    +         '<td style="border:1px solid #ccc; padding:6px;">' + (tot.n? tot.total.toFixed(0) : '—') + '</td></tr>'
+    +     '<tr><th style="text-align:left; border:1px solid #ccc; padding:6px;">Overall average</th>'
+    +         '<td style="border:1px solid #ccc; padding:6px;">' + (tot.n? tot.avg.toFixed(2) : '—') + ' <span style="color:#666;">(n = ' + (tot.n||0) + ')</span></td></tr>'
+    +   '</table>'
+    +   '<h3 style="margin:8px 0;">Subscales</h3>'
+    +   '<table style="width:100%; border-collapse:collapse;">'
+    +     '<thead><tr>'
+    +       '<th style="text-align:left; border:1px solid #ccc; padding:6px;">Subscale</th>'
+    +       '<th style="text-align:right; border:1px solid #ccc; padding:6px;">Raw sum</th>'
+    +       '<th style="text-align:right; border:1px solid #ccc; padding:6px;">Average</th>'
+    +       '<th style="text-align:right; border:1px solid #ccc; padding:6px;">Answered / Items</th>'
+    +     '</tr></thead><tbody>';
+
+  for (const s of subs) {
+    html += '<tr>'
+         +  '<td style="border:1px solid #ccc; padding:6px;">' + s.name + '</td>'
+         +  '<td style="text-align:right; border:1px solid #ccc; padding:6px;">' + (s.n? s.total.toFixed(0) : '—') + '</td>'
+         +  '<td style="text-align:right; border:1px solid #ccc; padding:6px;">' + (s.n? s.avg.toFixed(2) : '—') + '</td>'
+         +  '<td style="text-align:right; border:1px solid #ccc; padding:6px;">' + s.n + ' / ' + s.k + '</td>'
+         + '</tr>';
+  }
+  html += '</tbody></table>'
+       +  '<div style="margin-top:10px; color:#555; font-size:12px;">Averages exclude Not applicable responses. Items 36–39 contribute to total only.</div>'
+       + '</div>';
+  return html;
+}
+
+document.getElementById('calcBtn').addEventListener('click', render);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('asdqForm').reset();
+  document.getElementById('totalRaw').textContent='—';
+  document.getElementById('totalAvg').textContent='—';
+  document.getElementById('totalDenom').textContent='';
+  document.getElementById('subTable').innerHTML='';
+  document.getElementById('validMsg').textContent='';
+  document.getElementById('validMsg').className='';
+});
+
+// Normal print (opens system dialog)
+document.getElementById('printBtn').addEventListener('click', () => {
+  const {tot, subs} = render(); // ensure scores are up-to-date
+  const html = buildPrintSummary(tot, subs);
+  document.getElementById('summaryContent').innerHTML = html;
+  window.print();
+});
+
+// Direct PDF download (no dialog)
+document.getElementById('pdfBtn').addEventListener('click', async () => {
+  const {tot, subs} = render();
+  const html = buildPrintSummary(tot, subs);
+
+  // Temporary container for clean capture
+  const temp = document.createElement('div');
+  temp.style.padding = '16px';
+  temp.style.fontFamily = 'system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif';
+  temp.innerHTML = html;
+  document.body.appendChild(temp);
+
+  const name = (document.getElementById('childName').value || 'Child').trim().replace(/[^\w\-]+/g,'_');
+  const date = (document.getElementById('date').value || new Date().toISOString().slice(0,10));
+
+  const opt = {
+    margin:       0.5,                           // inches
+    filename:     `ASDQ_${name}_${date}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },   // sharper output
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+    pagebreak:    { mode: ['avoid-all','css','legacy'] }
+  };
+
+  await html2pdf().set(opt).from(temp).save();
+  temp.remove();
+});
+</script>
+
+</body>
+</html>
