@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pediatric CPT Tool</title>
+<style>
+:root{
+  --blue:#1f4e78;
+  --blue2:#2f75b5;
+  --light:#ddebf7;
+  --lighter:#eef6fc;
+  --grey:#f3f5f7;
+  --text:#1c2733;
+  --muted:#5d6b78;
+  --line:#d6dee6;
+  --warn:#fff8df;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  color:var(--text);
+  background:#f7f9fb;
+}
+header{
+  background:var(--blue);
+  color:white;
+  padding:18px 22px;
+}
+header h1{
+  margin:0 0 4px;
+  font-size:24px;
+  letter-spacing:.2px;
+}
+header p{
+  margin:0;
+  color:#dceaf5;
+  font-size:14px;
+}
+main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:20px;
+}
+.card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+  margin:14px 0;
+  box-shadow:0 3px 12px rgba(31,78,120,.06);
+}
+.note{
+  background:var(--light);
+  border-left:5px solid var(--blue);
+  padding:12px 14px;
+  border-radius:10px;
+  margin:12px 0;
+  font-size:14px;
+}
+.warn{
+  background:var(--warn);
+  border-left:5px solid #c99000;
+}
+h2{font-size:22px;margin:0 0 14px}
+h3{font-size:17px;margin:16px 0 8px;color:var(--blue)}
+h4{font-size:15px;margin:12px 0 6px}
+button,.btn{
+  border:0;
+  border-radius:11px;
+  padding:11px 14px;
+  background:var(--blue2);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  margin:5px;
+  font-size:14px;
+}
+button.secondary{
+  background:#e7eef5;
+  color:#163b5c;
+  border:1px solid #cddceb;
+}
+button.ghost{
+  background:white;
+  color:var(--blue);
+  border:1px solid var(--blue);
+}
+button.danger{
+  background:#8b1e1e;
+}
+.button-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.section-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:12px;
+}
+.codebox{
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:white;
+}
+.codebox h3{
+  margin:0;
+  background:var(--light);
+  padding:10px 12px;
+  font-size:15px;
+}
+.codebox ul{
+  margin:0;
+  padding:10px 14px 12px 28px;
+}
+.codebox li{margin:5px 0}
+.empty{color:var(--muted);font-style:italic}
+.pill{
+  display:inline-block;
+  background:var(--lighter);
+  border:1px solid var(--line);
+  color:#173d5d;
+  padding:4px 8px;
+  border-radius:999px;
+  margin:3px 5px 3px 0;
+  font-size:13px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+}
+th{
+  background:var(--blue);
+  color:white;
+  text-align:left;
+  padding:10px;
+  font-size:14px;
+}
+td{
+  padding:9px 10px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+tr:nth-child(even) td{background:var(--grey)}
+tr:nth-child(odd) td{background:white}
+.form-row{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:10px;
+  margin:9px 0;
+  align-items:center;
+}
+label{font-weight:700;color:#26394a}
+input,select,textarea{
+  width:100%;
+  border:1px solid #cbd6e2;
+  border-radius:10px;
+  padding:10px;
+  font-size:14px;
+  background:white;
+}
+textarea{min-height:78px;font-family:Consolas,monospace}
+.small{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+hr{
+  border:0;
+  border-top:1px solid var(--line);
+  margin:16px 0;
+}
+pre{
+  white-space:pre-wrap;
+  background:#0f1e2b;
+  color:#eef8ff;
+  padding:14px;
+  border-radius:12px;
+  overflow:auto;
+}
+.top-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+@media(max-width:720px){
+  main{padding:12px}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pediatric CPT Tool</h1>
+  <p>Single-file offline tool with editable embedded JSON and exportable updated HTML.</p>
+</header>
+
+<script id="app-data" type="application/json">
+{
+  "meta": {
+    "title": "Pediatric CPT Tool",
+    "source": "Based on uploaded Peds_CPT_Billing_Template_v5 workbook",
+    "productNote": "Vaccine product CPT codes are included for informational purposes. They are not billed for patients without insurance.",
+    "externalLabNote": "External lab codes are shown for reference and are not billed from our office.",
+    "updated": "2026-04-28"
+  },
+  "wellVisits": [
+    {
+      "id": "nb",
+      "label": "NB",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90380/90381 Beyfortus"
+        ],
+        "seasonalAdmin": [
+          "Beyfortus RSV mAb admin: 96380 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Beyfortus is seasonal/once-per-season when indicated; product code depends on dose."
+      ]
+    },
+    {
+      "id": "1-mo",
+      "label": "1 mo",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90380/90381 Beyfortus"
+        ],
+        "seasonalAdmin": [
+          "Beyfortus RSV mAb admin: 96380 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Beyfortus is seasonal/once-per-season when indicated; product code depends on dose."
+      ]
+    },
+    {
+      "id": "2-mo",
+      "label": "2 mo",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x5"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90697 Vaxelis",
+          "90671 Vaxneuvance",
+          "90680 RotaTeq"
+        ],
+        "seasonalProducts": [
+          "90380/90381 Beyfortus",
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Beyfortus RSV mAb admin: 96380 x1",
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Beyfortus is seasonal/once-per-season when indicated; product code depends on dose."
+      ]
+    },
+    {
+      "id": "4-mo",
+      "label": "4 mo",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x5"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90697 Vaxelis",
+          "90671 Vaxneuvance",
+          "90680 RotaTeq"
+        ],
+        "seasonalProducts": [
+          "90380/90381 Beyfortus",
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Beyfortus RSV mAb admin: 96380 x1",
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Beyfortus is seasonal/once-per-season when indicated; product code depends on dose."
+      ]
+    },
+    {
+      "id": "6-mo",
+      "label": "6 mo",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x5"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90697 Vaxelis",
+          "90671 Vaxneuvance",
+          "90680 RotaTeq"
+        ],
+        "seasonalProducts": [
+          "90380/90381 Beyfortus",
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Beyfortus RSV mAb admin: 96380 x1",
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Beyfortus is seasonal/once-per-season when indicated; product code depends on dose."
+      ]
+    },
+    {
+      "id": "9-mo",
+      "label": "9 mo",
+      "visitCodes": {
+        "new": "99381",
+        "established": "99391"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Capillary blood collection: 36416 x1"
+        ],
+        "inOffice": [
+          "Hemoglobin POCT: 85018 x1",
+          "Developmental screening (ASQ) 96110"
+        ],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "12-mo-1-yr",
+      "label": "12 mo (1 yr)",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x2",
+          "Vision screening w/ off-site analysis: 99174 x1",
+          "Capillary blood collection: 36416 x1"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90707 MMR",
+          "90671 Vaxneuvance",
+          "90716 Varivax"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [
+          "Lead level, capillary tube: 83655"
+        ],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "15-mo",
+      "label": "15 mo",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x2"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90700 DTaP",
+          "90648 ActHIB",
+          "90633 Hep A (Vaqta)"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "18-mo",
+      "label": "18 mo",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [
+          "96110 Developmental Screen (MCHAT)"
+        ],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "24-mo-2-yr",
+      "label": "24 mo (2 yr)",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x1",
+          "Vision screening w/ off-site analysis: 99174 x1",
+          "Capillary blood collection: 36416 x1",
+          "Developmental Screen (MCHAT) 96110"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90633 Hep A (Vaqta)"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [
+          "Lead level, capillary tube: 83655"
+        ],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "30-mo",
+      "label": "30 mo",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [
+          "Developmental Screen (ASQ) 96110"
+        ],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "3-yr",
+      "label": "3 yr",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Vision screening w/ off-site analysis: 99174 x1"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "4-yr",
+      "label": "4 yr",
+      "visitCodes": {
+        "new": "99382",
+        "established": "99392"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x2, 90461 x6"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90710 ProQuad",
+          "90696 Quadracel"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "5-10-yr-annual",
+      "label": "5–10 yr annual",
+      "visitCodes": {
+        "new": "99383",
+        "established": "99393"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "11-yr",
+      "label": "11 yr",
+      "visitCodes": {
+        "new": "99383",
+        "established": "99393"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x3, 90461 x2"
+        ],
+        "inOffice": [
+          "Venipuncture: 36415 x1"
+        ],
+        "vaccineProducts": [
+          "90651 Gardasil 9",
+          "90715 Tdap",
+          "90619 MenQuadfi"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [
+          "Lipid panel: 80061"
+        ],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "12-15-yr-annual",
+      "label": "12–15 yr annual",
+      "visitCodes": {
+        "new": "99384",
+        "established": "99394"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "16-yr",
+      "label": "16 yr",
+      "visitCodes": {
+        "new": "99384",
+        "established": "99394"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x1"
+        ],
+        "inOffice": [
+          "Venipuncture: 36415 x1"
+        ],
+        "vaccineProducts": [
+          "90619 MenQuadfi"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [
+          "Lipid panel: 80061"
+        ],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "17-yr",
+      "label": "17 yr",
+      "visitCodes": {
+        "new": "99384",
+        "established": "99394"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x1"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90620 Bexsero"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "id": "18-yr",
+      "label": "18 yr",
+      "visitCodes": {
+        "new": "99385",
+        "established": "99395"
+      },
+      "sections": {
+        "visit": [],
+        "admin": [
+          "Immunization admin: 90460 x1 if ≤18 at administration"
+        ],
+        "inOffice": [],
+        "vaccineProducts": [
+          "90620 Bexsero"
+        ],
+        "seasonalProducts": [
+          "90686 Fluzone"
+        ],
+        "seasonalAdmin": [
+          "Flu admin: 90460 x1 if ≤18 at administration"
+        ],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": [
+        "Use 99395/99385 if already 18."
+      ]
+    }
+  ],
+  "acuteEM": [
+    {
+      "patientType": "established",
+      "level": "Level 3",
+      "code": "99213",
+      "description": "Low-complexity acute/problem-oriented visit"
+    },
+    {
+      "patientType": "established",
+      "level": "Level 4",
+      "code": "99214",
+      "description": "Moderate-complexity acute/problem-oriented visit"
+    },
+    {
+      "patientType": "established",
+      "level": "Level 5",
+      "code": "99215",
+      "description": "High-complexity acute/problem-oriented visit"
+    },
+    {
+      "patientType": "new",
+      "level": "Level 3",
+      "code": "99203",
+      "description": "Low-complexity new-patient acute/problem-oriented visit"
+    },
+    {
+      "patientType": "new",
+      "level": "Level 4",
+      "code": "99204",
+      "description": "Moderate-complexity new-patient acute/problem-oriented visit"
+    },
+    {
+      "patientType": "new",
+      "level": "Level 5",
+      "code": "99205",
+      "description": "High-complexity new-patient acute/problem-oriented visit"
+    }
+  ],
+  "poct": [
+    {
+      "test": "Influenza A/B NAAT (Abbott ID NOW)",
+      "code": "87502",
+      "description": "Amplified probe detection for influenza A and B"
+    },
+    {
+      "test": "Strep A NAAT",
+      "code": "87651",
+      "description": "Amplified probe detection for Group A Streptococcus"
+    },
+    {
+      "test": "COVID-19 NAAT",
+      "code": "87635",
+      "description": "Amplified probe detection for SARS-CoV-2"
+    },
+    {
+      "test": "Urinalysis automated, no microscopy",
+      "code": "81003",
+      "description": "POCT UA by automated dipstick/analyzer, without microscopy"
+    },
+    {
+      "test": "Glucose, blood by monitoring device",
+      "code": "82962",
+      "description": "POCT fingerstick/capillary glucose"
+    },
+    {
+      "test": "Vanderbilt review",
+      "code": "96127",
+      "description": "Scoring of each vanderbilt test. New ADHD visits often have 2-4 units of this."
+    }
+  ],
+  "problemExplanations": {
+    "level3": "Usually a straightforward problem: one or two simple issues, limited testing, and low risk. Examples might include a mild rash, uncomplicated URI, or recheck when little decision-making is needed. This imcludes simple ADHD med checks",
+    "level4": "Usually a more involved visit: prescription management, multiple problems, worsening illness, testing decisions, or moderate risk. Many pediatric sick visits land here when treatment choices or test interpretation matter. New ADHD and med checks often fall here.",
+    "level5": "Reserved for unusually complex or high-risk visits: severe illness, extensive data review, high-risk decision-making, or a situation that may require urgent escalation."
+  },
+  "ommPlaceholder": {
+    "title": "OMM Placeholder",
+    "message": "OMM visit coding can be added here later."
+  },
+  "notes": [
+    {
+      "topic": "Vaccine products",
+      "note": "Vaccine product CPT codes are included for informational purposes only. They are not billed for patients without insurance."
+    },
+    {
+      "topic": "Beyfortus product",
+      "note": "90380 = Beyfortus / nirsevimab 0.5 mL dose.\n90381 = Beyfortus / nirsevimab 1 mL dose.\nUse the dose-specific product code based on the administered dose."
+    },
+    {
+      "topic": "Beyfortus administration",
+      "note": "Beyfortus RSV monoclonal antibody administration: 96380.\nDo not use 90460/90461 for Beyfortus administration."
+    },
+    {
+      "topic": "Beyfortus diagnosis",
+      "note": "Common diagnosis code: Z29.11 encounter for prophylactic immunotherapy for RSV.\nVerify payer/VFC/state guidance."
+    },
+    {
+      "topic": "Fluzone",
+      "note": "90686 is used here as the office default influenza product.\nAdjust if inventory/formulation differs."
+    },
+    {
+      "topic": "Vision screening",
+      "note": "99174 is used for instrument-based ocular screening with remote/off-site analysis."
+    },
+    {
+      "topic": "Admin codes",
+      "note": "90460/90461 assume vaccine counseling is documented and patient is 18 or younger.\nFor 19+ patients, adult vaccine administration codes may apply."
+    },
+    {
+      "topic": "Same-day preventive + additional service",
+      "note": "Modifier -25 may be needed on preventive E/M when separately reportable services are billed the same day, depending on payer rules."
+    }
+  ],
+  "customOptions": [],
+  "problemCustomOptions": [],
+  "ommOptions": [
+    {
+      "label": "Plagiocephaly OMM (babies with flat heads)",
+      "sections": {
+        "visit": [
+          "98927 OMM 5-6 regions",
+          "99214 for visit codd"
+        ],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [],
+        "seasonalAdmin": [],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    },
+    {
+      "label": "Low back pain OMM",
+      "sections": {
+        "visit": [
+          "98929 (OMM 9-10 regions)",
+          "99214 for visit"
+        ],
+        "admin": [],
+        "inOffice": [],
+        "vaccineProducts": [],
+        "seasonalProducts": [],
+        "seasonalAdmin": [],
+        "externalLab": [],
+        "reference": []
+      },
+      "notes": []
+    }
+  ]
+}
+</script>
+
+<main>
+  <section id="mainPage" class="">
+    <div class="top-actions">
+      <div>
+        <button class="secondary" onclick="resetFlow()">Start Over</button>
+        <button class="ghost" onclick="goEdit()">Edit Tool Data</button>
+        <button class="ghost" onclick="showJsonHelp()">How to manually update JSON</button>
+      </div>
+    </div>
+    <div class="note" id="topNote">Vaccine product CPT codes are included for informational purposes. They are not billed for patients without insurance.</div>
+    <div id="workflow" class="card">
+      <h2>1. Patient type</h2>
+      <div class="button-grid">
+        <button onclick="choosePatient('new')">New Patient</button>
+        <button onclick="choosePatient('established')">Established Patient</button>
+      </div></div>
+    <div id="results"></div>
+  </section>
+
+  <section id="editPage" class="hidden">
+    <div class="top-actions">
+      <div>
+        <button class="secondary" onclick="goMain()">Back to Tool</button>
+        <button onclick="exportHtml()">Export Updated HTML</button>
+      </div>
+      <span class="small">Edits change this running copy only until you export a new HTML file.</span>
+    </div>
+    <div class="card">
+      <h2>Edit Tool Data</h2>
+      <div id="editFlow">
+    <h3>Edit OMM option: Plagiocephaly OMM (babies with flat heads)</h3>
+    <div class="form-row"><label>Label</label><input id="editOmmLabel" value="Plagiocephaly OMM (babies with flat heads)"></div>
+    <hr>
+    <h3>Edit output sections</h3>
+    <p class="small">One item per line. These follow the same section pattern as well visit edits.</p>
+    <div class="form-row"><label>Visit code</label><textarea id="editOmmVisit">98927 OMM 5-6 regions
+99214 for visit codd</textarea></div>
+    <div class="form-row"><label>Admin codes</label><textarea id="editOmmAdmin"></textarea></div>
+    <div class="form-row"><label>Extra in-office codes</label><textarea id="editOmmInOffice"></textarea></div>
+    <div class="form-row"><label>Vaccine product codes</label><textarea id="editOmmVaccineProducts"></textarea></div>
+    <div class="form-row"><label>Seasonal products</label><textarea id="editOmmSeasonalProducts"></textarea></div>
+    <div class="form-row"><label>Seasonal admin codes</label><textarea id="editOmmSeasonalAdmin"></textarea></div>
+    <div class="form-row"><label>External laboratory codes</label><textarea id="editOmmExternalLab"></textarea></div>
+    <div class="form-row"><label>Reference-only codes</label><textarea id="editOmmReference"></textarea></div>
+    <div class="form-row"><label>Notes</label><textarea id="editOmmNotes"></textarea></div>
+    <button class="secondary" onclick="saveOmmOption(0)">Save OMM option</button>
+    <button onclick="exportHtml()">Export Updated HTML</button></div>
+    </div>
+  </section>
+
+  <section id="jsonHelpPage" class="hidden">
+    <div class="top-actions">
+      <button class="secondary" onclick="goMain()">Back to Tool</button>
+    </div>
+    <div class="card">
+      <h2>How to manually update JSON</h2>
+      <p>The tool stores its data inside this HTML file in a script tag:</p>
+      <pre>&lt;script id="app-data" type="application/json"&gt;
+{
+  "wellVisits": [],
+  "acuteEM": [],
+  "poct": []
+}
+&lt;/script&gt;</pre>
+      <h3>Basic rules</h3>
+      <ul>
+        <li>Use double quotes around all keys and text values.</li>
+        <li>Separate items in a list with commas.</li>
+        <li>Do not put a comma after the last item in a list or object.</li>
+        <li>Each well visit has a label, visit codes, and sections.</li>
+      </ul>
+      <h3>Example: add an in-office code to a well visit</h3>
+      <pre>{
+  "label": "9 mo",
+  "visitCodes": { "new": "99381", "established": "99391" },
+  "sections": {
+    "admin": ["Capillary blood collection: 36416 x1"],
+    "inOffice": ["Hemoglobin POCT: 85018 x1"],
+    "vaccineProducts": [],
+    "seasonalProducts": ["90686 Fluzone"],
+    "seasonalAdmin": ["Flu admin: 90460 x1"],
+    "externalLab": []
+  }
+}</pre>
+      <h3>Section names the tool understands</h3>
+      <table>
+        <tbody><tr><th>Section key</th><th>Meaning</th></tr>
+        <tr><td>visit</td><td>Visit code line, usually generated automatically from new/established choice.</td></tr>
+        <tr><td>admin</td><td>Routine vaccine administration codes.</td></tr>
+        <tr><td>inOffice</td><td>Extra in-office billable codes, such as 85018, 36415, 36416, 99174.</td></tr>
+        <tr><td>vaccineProducts</td><td>Routine vaccine product CPT codes for reference.</td></tr>
+        <tr><td>seasonalProducts</td><td>Seasonal/conditional products, such as Fluzone or Beyfortus.</td></tr>
+        <tr><td>seasonalAdmin</td><td>Seasonal/conditional admin codes, such as flu admin or Beyfortus admin.</td></tr>
+        <tr><td>externalLab</td><td>External lab codes not billed from your office.</td></tr>
+        <tr><td>reference</td><td>General reference-only codes.</td></tr>
+      </tbody></table>
+      <h3>Example: add a new POCT reference</h3>
+      <pre>{
+  "test": "Glucose, blood by monitoring device",
+  "code": "82962",
+  "description": "POCT fingerstick/capillary glucose"
+}</pre>
+    </div>
+  </section>
+</main>
+
+<script>
+let data = JSON.parse(document.getElementById("app-data").textContent);
+if(!data.problemCustomOptions) data.problemCustomOptions = [];
+if(!data.ommOptions) data.ommOptions = [];
+let state = { patientType:null, visitKind:null, selectedAge:null };
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function lineList(items){ return (items || []).filter(Boolean); }
+
+function render(){
+  $("topNote").innerHTML = esc(data.meta.productNote);
+  const w = $("workflow");
+  const r = $("results");
+  r.innerHTML = "";
+  if(!state.patientType){
+    w.innerHTML = `
+      <h2>1. Patient type</h2>
+      <div class="button-grid">
+        <button onclick="choosePatient('new')">New Patient</button>
+        <button onclick="choosePatient('established')">Established Patient</button>
+      </div>`;
+    return;
+  }
+  if(!state.visitKind){
+    w.innerHTML = `
+      <h2>2. Visit type</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span></p>
+      <div class="button-grid">
+        <button onclick="chooseKind('well')">Well Child</button>
+        <button onclick="chooseKind('problem')">Problem-Oriented Visit</button>
+        <button onclick="chooseKind('omm')">OMM</button>
+      </div>`;
+    return;
+  }
+  if(state.visitKind === "well"){
+    w.innerHTML = `
+      <h2>3. Choose well visit age</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">Well Child</span></p>
+      <div class="button-grid">
+        ${data.wellVisits.map(v => `<button onclick="showWell('${esc(v.id)}')">${esc(v.label)}</button>`).join("")}
+      </div>`;
+    return;
+  }
+  if(state.visitKind === "omm"){
+    w.innerHTML = `
+      <h2>3. OMM</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">OMM</span></p>
+      <div class="button-grid">
+        <button onclick="showProblem(true)">Show OMM</button>
+      </div>`;
+    return;
+  }
+  if(state.visitKind === "problem"){
+    showProblem(false);
+    w.innerHTML = `
+      <h2>3. Problem-Oriented Visit</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">Problem-Oriented</span></p>
+      <div class="note">Problem-oriented E/M codes and common testing reference are shown below.</div>`;
+    return;
+  }
+  if(false){
+    w.innerHTML = `
+      <h2>3. OMM?</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">Problem-Oriented</span></p>
+      <div class="button-grid">
+        <button onclick="showProblem(false)">No</button>
+        <button onclick="showProblem(true)">Yes, OMM</button>
+      </div>`;
+  }
+}
+
+function choosePatient(type){ state.patientType = type; state.visitKind = null; state.selectedAge = null; render(); }
+function chooseKind(kind){ state.visitKind = kind; state.selectedAge = null; render(); }
+function resetFlow(){ state = { patientType:null, visitKind:null, selectedAge:null }; render(); }
+
+function box(title, items, note){
+  items = lineList(items);
+  return `<div class="codebox"><h3>${esc(title)}</h3>${note ? `<div class="note">${esc(note)}</div>` : ""}${items.length ? `<ul>${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>` : `<div style="padding:12px" class="empty">None</div>`}</div>`;
+}
+
+function showWell(id){
+  const v = data.wellVisits.find(x => x.id === id);
+  if(!v) return;
+  const pt = state.patientType;
+  const visitCode = v.visitCodes[pt];
+  const allInOffice = [...lineList(v.sections.inOffice)];
+  $("results").innerHTML = `
+    <div class="card">
+      <h2>${esc(v.label)} Well Visit</h2>
+      <p><span class="pill">${pt === "new" ? "New Patient" : "Established Patient"}</span></p>
+      <div class="section-grid">
+        ${box("Visit code", [visitCode ? `${visitCode} preventive visit` : ""], "")}
+        ${box("Admin codes", v.sections.admin, "")}
+        ${box("Extra in-office codes", allInOffice, "")}
+        ${box("Seasonal / conditional admin", v.sections.seasonalAdmin, "")}
+        ${box("Vaccine product codes", [...lineList(v.sections.vaccineProducts), ...lineList(v.sections.seasonalProducts)], data.meta.productNote)}
+        ${box("External lab codes", v.sections.externalLab, data.meta.externalLabNote)}
+      </div>
+      ${v.notes && v.notes.length ? `<div class="note warn"><strong>Notes:</strong><br>${v.notes.map(esc).join("<br>")}</div>` : ""}
+    </div>`;
+}
+
+function showProblem(isOmm){
+  if(isOmm){
+    const opts = data.ommOptions || [];
+    if(opts.length){
+      $("results").innerHTML = `
+        <div class="card">
+          <h2>OMM</h2>
+          <div class="section-grid">
+            ${opts.map(o => box(o.label, [
+              ...(o.sections.visit || []),
+              ...(o.sections.admin || []),
+              ...(o.sections.inOffice || []),
+              ...(o.sections.reference || [])
+            ], (o.notes || []).join("\n"))).join("")}
+          </div>
+        </div>`;
+    } else {
+      $("results").innerHTML = `<div class="card"><h2>${esc(data.ommPlaceholder.title)}</h2><p>${esc(data.ommPlaceholder.message)}</p></div>`;
+    }
+    return;
+  }
+  const rows = data.acuteEM.filter(x => x.patientType === state.patientType);
+  $("results").innerHTML = `
+    <div class="card">
+      <h2>Problem-Oriented E/M Codes</h2>
+      <p><span class="pill">${state.patientType === "new" ? "New Patient" : "Established Patient"}</span></p>
+      <div class="note">Visits are typically level 3 or 4. Level 5 is included as a just-in-case option for unusually complex or high-risk visits.</div>
+      <table>
+        <tr><th>Level</th><th>CPT</th><th>Plain-English family explanation</th></tr>
+        ${rows.map(row => `<tr><td>${esc(row.level)}</td><td><strong>${esc(row.code)}</strong></td><td>${explainLevel(row.level)}</td></tr>`).join("")}
+      </table>
+      <h3>Common in-office testing reference</h3>
+      <table>
+        <tr><th>Test</th><th>CPT</th><th>Description</th></tr>
+        ${data.poct.map(p => `<tr><td>${esc(p.test)}</td><td><strong>${esc(p.code)}</strong></td><td>${esc(p.description)}</td></tr>`).join("")}
+      </table>
+    </div>`;
+}
+
+function explainLevel(level){
+  if(level.includes("3")) return data.problemExplanations.level3;
+  if(level.includes("4")) return data.problemExplanations.level4;
+  if(level.includes("5")) return data.problemExplanations.level5;
+  return "";
+}
+
+function goEdit(){
+  $("mainPage").classList.add("hidden");
+  $("jsonHelpPage").classList.add("hidden");
+  $("editPage").classList.remove("hidden");
+  renderEditStart();
+}
+function goMain(){
+  $("editPage").classList.add("hidden");
+  $("jsonHelpPage").classList.add("hidden");
+  $("mainPage").classList.remove("hidden");
+  render();
+}
+function showJsonHelp(){
+  $("mainPage").classList.add("hidden");
+  $("editPage").classList.add("hidden");
+  $("jsonHelpPage").classList.remove("hidden");
+}
+
+let editState = { patientType:null, kind:null, target:null };
+
+function renderEditStart(){
+  editState = { patientType:null, kind:null, target:null };
+  $("editFlow").innerHTML = `
+    <h3>1. Patient type</h3>
+    <div class="button-grid">
+      <button onclick="editChoosePatient('new')">New Patient</button>
+      <button onclick="editChoosePatient('established')">Established Patient</button>
+    </div>`;
+}
+
+function editChoosePatient(pt){
+  editState.patientType = pt;
+  $("editFlow").innerHTML = `
+    <h3>2. What do you want to edit?</h3>
+    <p><span class="pill">${pt === "new" ? "New Patient" : "Established Patient"}</span></p>
+    <div class="button-grid">
+      <button onclick="editChooseKind('well')">Well Child</button>
+      <button onclick="editChooseKind('problem')">Problem-Oriented Visit</button>
+      <button onclick="editChooseKind('omm')">OMM</button>
+      ${data.customOptions.map((o,i)=>`<button onclick="editCustom(${i})">${esc(o.label)}</button>`).join("")}
+    </div>
+    <hr>
+    <h3>Add a third option to this page</h3>
+    <div class="form-row"><label>New option label</label><input id="newCustomLabel" placeholder="Example: Procedure visit"></div>
+    <button class="secondary" onclick="addCustomOption()">Add option</button>`;
+}
+
+function addCustomOption(){
+  const label = $("newCustomLabel").value.trim();
+  if(!label) return alert("Add a label first.");
+  data.customOptions.push({ label, items: [] });
+  editChoosePatient(editState.patientType);
+}
+
+function editCustom(i){
+  const opt = data.customOptions[i];
+  $("editFlow").innerHTML = `
+    <h3>Edit custom option: ${esc(opt.label)}</h3>
+    <p>This is a placeholder custom category. Add lines below.</p>
+    ${renderCodeEntry(`custom-${i}`)}
+    <h3>Current items</h3>
+    <ul>${(opt.items||[]).map(x=>`<li>${esc(x.section)}: ${esc(x.code)} — ${esc(x.description)}</li>`).join("")}</ul>
+    <button onclick="exportHtml()">Export Updated HTML</button>`;
+}
+
+function editChooseKind(kind){
+  editState.kind = kind;
+  if(kind === "well"){
+    $("editFlow").innerHTML = `
+      <h3>3. Choose a well visit to edit</h3>
+      <div class="button-grid">
+        ${data.wellVisits.map(v=>`<button onclick="editWell('${esc(v.id)}')">${esc(v.label)}</button>`).join("")}
+      </div>
+      <hr>
+      <h3>Add new well visit type</h3>
+      <div class="form-row"><label>Label</label><input id="newWellLabel" placeholder="Example: 7 yr annual"></div>
+      <div class="form-row"><label>New patient CPT</label><input id="newWellNp" placeholder="Example: 99383"></div>
+      <div class="form-row"><label>Established CPT</label><input id="newWellEst" placeholder="Example: 99393"></div>
+      <button class="secondary" onclick="addWellVisit()">Add well visit</button>`;
+  } else if(kind === "problem"){
+    $("editFlow").innerHTML = `
+      <h3>3. Edit problem-oriented visits</h3>
+      <p><span class="pill">${editState.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">Problem-Oriented</span></p>
+      <p>Add or edit E/M or testing reference codes.</p>
+      ${renderProblemEditor()}
+      <button onclick="exportHtml()">Export Updated HTML</button>`;
+  } else if(kind === "omm"){
+    renderOmmEditor();
+  }
+}
+
+function addWellVisit(){
+  const label = $("newWellLabel").value.trim();
+  if(!label) return alert("Add a label.");
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  data.wellVisits.push({
+    id, label,
+    visitCodes: { new: $("newWellNp").value.trim(), established: $("newWellEst").value.trim() },
+    sections: { visit:[], admin:[], inOffice:[], vaccineProducts:[], seasonalProducts:[], seasonalAdmin:[], externalLab:[], reference:[] },
+    notes:[]
+  });
+  editChooseKind("well");
+}
+
+function editWell(id){
+  const v = data.wellVisits.find(x=>x.id===id);
+  if(!v) return;
+  editState.target = id;
+  $("editFlow").innerHTML = `
+    <h3>Edit: ${esc(v.label)}</h3>
+    <div class="form-row"><label>Label</label><input id="editLabel" value="${esc(v.label)}"></div>
+    <div class="form-row"><label>New patient CPT</label><input id="editNp" value="${esc(v.visitCodes.new)}"></div>
+    <div class="form-row"><label>Established CPT</label><input id="editEst" value="${esc(v.visitCodes.established)}"></div>
+    <hr>
+    <h3>Edit output sections</h3>
+    <p class="small">One item per line. These map directly to the sections shown in the standard workflow.</p>
+    <div class="form-row"><label>Routine vaccine products</label><textarea id="editVaccineProducts">${esc((v.sections.vaccineProducts||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Admin codes</label><textarea id="editAdmin">${esc((v.sections.admin||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Extra in-office codes</label><textarea id="editInOffice">${esc((v.sections.inOffice||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Seasonal products</label><textarea id="editSeasonalProducts">${esc((v.sections.seasonalProducts||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Seasonal admin codes</label><textarea id="editSeasonalAdmin">${esc((v.sections.seasonalAdmin||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>External laboratory codes</label><textarea id="editExternalLab">${esc((v.sections.externalLab||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Reference-only codes</label><textarea id="editReference">${esc((v.sections.reference||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Notes</label><textarea id="editNotes">${esc((v.notes||[]).join("\n"))}</textarea></div>
+    <button class="secondary" onclick="saveWellAll('${esc(id)}')">Save all well visit fields</button>
+    <hr>
+    ${renderCodeEntry(id)}
+    <h3>Current data</h3>
+    ${renderWellSummary(v)}
+    <button onclick="exportHtml()">Export Updated HTML</button>`;
+}
+
+function textareaLines(id){
+  return ($(id).value || "").split("\n").map(x=>x.trim()).filter(Boolean);
+}
+
+function saveWellAll(id){
+  const v = data.wellVisits.find(x=>x.id===id);
+  v.label = $("editLabel").value.trim();
+  v.visitCodes.new = $("editNp").value.trim();
+  v.visitCodes.established = $("editEst").value.trim();
+  v.sections.vaccineProducts = textareaLines("editVaccineProducts");
+  v.sections.admin = textareaLines("editAdmin");
+  v.sections.inOffice = textareaLines("editInOffice");
+  v.sections.seasonalProducts = textareaLines("editSeasonalProducts");
+  v.sections.seasonalAdmin = textareaLines("editSeasonalAdmin");
+  v.sections.externalLab = textareaLines("editExternalLab");
+  v.sections.reference = textareaLines("editReference");
+  v.notes = textareaLines("editNotes");
+  alert("Saved.");
+  editWell(id);
+}
+
+function renderCodeEntry(target){
+  return `
+    <h3>Add a code/detail line</h3>
+    <div class="form-row"><label>Code number</label><input id="addCode" placeholder="Example: 85018"></div>
+    <div class="form-row"><label>Description</label><input id="addDesc" placeholder="Example: Hemoglobin POCT x1"></div>
+    <div class="form-row">
+      <label>Section</label>
+      <select id="addSection">
+        <option value="admin">Admin code</option>
+        <option value="inOffice">Extra in-office code</option>
+        <option value="vaccineProducts">Vaccine product code</option>
+        <option value="seasonalProducts">Seasonal/conditional product</option>
+        <option value="seasonalAdmin">Seasonal/conditional admin</option>
+        <option value="externalLab">External laboratory</option>
+        <option value="reference">Reference only</option>
+        <option value="notes">Notes</option>
+      </select>
+    </div>
+    <button class="secondary" onclick="addCodeLine('${esc(target)}')">Add line</button>`;
+}
+
+function addCodeLine(target){
+  const code = $("addCode").value.trim();
+  const desc = $("addDesc").value.trim();
+  const section = $("addSection").value;
+  const line = code && desc ? `${desc}: ${code}` : (desc || code);
+  if(!line) return alert("Add a code or description.");
+  if(target.startsWith("custom-")){
+    const i = Number(target.split("-")[1]);
+    data.customOptions[i].items.push({section, code, description:desc});
+    editCustom(i);
+    return;
+  }
+  const v = data.wellVisits.find(x=>x.id===target);
+  if(section === "notes") v.notes.push(line);
+  else v.sections[section].push(line);
+  editWell(target);
+}
+
+function renderWellSummary(v){
+  const names = {
+    admin:"Admin",
+    inOffice:"Extra in-office",
+    vaccineProducts:"Vaccine products",
+    seasonalProducts:"Seasonal products",
+    seasonalAdmin:"Seasonal admin",
+    externalLab:"External lab",
+    reference:"Reference"
+  };
+  return `<div class="section-grid">${Object.keys(names).map(k=>box(names[k], v.sections[k] || [], "")).join("")}${box("Notes", v.notes || [], "")}</div>`;
+}
+
+
+function ensureOmmOptions(){
+  if(!data.ommOptions) data.ommOptions = [];
+}
+
+function renderOmmEditor(){
+  ensureOmmOptions();
+  $("editFlow").innerHTML = `
+    <h3>3. Edit OMM options</h3>
+    <p><span class="pill">${editState.patientType === "new" ? "New Patient" : "Established Patient"}</span><span class="pill">OMM</span></p>
+    <div class="button-grid">
+      ${data.ommOptions.map((o,i)=>`<button onclick="editOmmOption(${i})">${esc(o.label)}</button>`).join("")}
+    </div>
+    <hr>
+    <h3>Add new OMM option</h3>
+    <div class="form-row"><label>Label</label><input id="newOmmLabel" placeholder="Example: OMM 1-2 regions"></div>
+    <button class="secondary" onclick="addOmmOption()">Add OMM option</button>
+    <button onclick="exportHtml()">Export Updated HTML</button>`;
+}
+
+function addOmmOption(){
+  ensureOmmOptions();
+  const label = $("newOmmLabel").value.trim();
+  if(!label) return alert("Add a label first.");
+  data.ommOptions.push({
+    label,
+    sections: { visit:[], admin:[], inOffice:[], vaccineProducts:[], seasonalProducts:[], seasonalAdmin:[], externalLab:[], reference:[] },
+    notes:[]
+  });
+  renderOmmEditor();
+}
+
+function editOmmOption(i){
+  ensureOmmOptions();
+  const o = data.ommOptions[i];
+  $("editFlow").innerHTML = `
+    <h3>Edit OMM option: ${esc(o.label)}</h3>
+    <div class="form-row"><label>Label</label><input id="editOmmLabel" value="${esc(o.label)}"></div>
+    <hr>
+    <h3>Edit output sections</h3>
+    <p class="small">One item per line. These follow the same section pattern as well visit edits.</p>
+    <div class="form-row"><label>Visit code</label><textarea id="editOmmVisit">${esc((o.sections.visit||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Admin codes</label><textarea id="editOmmAdmin">${esc((o.sections.admin||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Extra in-office codes</label><textarea id="editOmmInOffice">${esc((o.sections.inOffice||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Vaccine product codes</label><textarea id="editOmmVaccineProducts">${esc((o.sections.vaccineProducts||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Seasonal products</label><textarea id="editOmmSeasonalProducts">${esc((o.sections.seasonalProducts||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Seasonal admin codes</label><textarea id="editOmmSeasonalAdmin">${esc((o.sections.seasonalAdmin||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>External laboratory codes</label><textarea id="editOmmExternalLab">${esc((o.sections.externalLab||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Reference-only codes</label><textarea id="editOmmReference">${esc((o.sections.reference||[]).join("\n"))}</textarea></div>
+    <div class="form-row"><label>Notes</label><textarea id="editOmmNotes">${esc((o.notes||[]).join("\n"))}</textarea></div>
+    <button class="secondary" onclick="saveOmmOption(${i})">Save OMM option</button>
+    <button onclick="exportHtml()">Export Updated HTML</button>`;
+}
+
+function saveOmmOption(i){
+  const o = data.ommOptions[i];
+  o.label = $("editOmmLabel").value.trim();
+  o.sections.visit = textareaLines("editOmmVisit");
+  o.sections.admin = textareaLines("editOmmAdmin");
+  o.sections.inOffice = textareaLines("editOmmInOffice");
+  o.sections.vaccineProducts = textareaLines("editOmmVaccineProducts");
+  o.sections.seasonalProducts = textareaLines("editOmmSeasonalProducts");
+  o.sections.seasonalAdmin = textareaLines("editOmmSeasonalAdmin");
+  o.sections.externalLab = textareaLines("editOmmExternalLab");
+  o.sections.reference = textareaLines("editOmmReference");
+  o.notes = textareaLines("editOmmNotes");
+  alert("Saved.");
+  editOmmOption(i);
+}
+
+function renderProblemEditor(){
+  return `
+    <h3>Add E/M code</h3>
+    <div class="form-row"><label>Patient type</label><select id="emType"><option value="new">New</option><option value="established">Established</option></select></div>
+    <div class="form-row"><label>Level</label><input id="emLevel" placeholder="Example: Level 4"></div>
+    <div class="form-row"><label>CPT code</label><input id="emCode" placeholder="Example: 99214"></div>
+    <div class="form-row"><label>Description</label><input id="emDesc" placeholder="Example: Moderate complexity visit"></div>
+    <button class="secondary" onclick="addEM()">Add E/M</button>
+    <hr>
+    <h3>Add POCT/reference code</h3>
+    <div class="form-row"><label>Test</label><input id="poctTest" placeholder="Example: RSV antigen"></div>
+    <div class="form-row"><label>CPT code</label><input id="poctCode" placeholder="Example: 87807"></div>
+    <div class="form-row"><label>Description</label><input id="poctDesc" placeholder="Description"></div>
+    <button class="secondary" onclick="addPOCT()">Add POCT/reference</button>
+    <h3>Current POCT/reference chart</h3>
+    <table><tr><th>Test</th><th>CPT</th><th>Description</th></tr>${data.poct.map(p=>`<tr><td>${esc(p.test)}</td><td>${esc(p.code)}</td><td>${esc(p.description)}</td></tr>`).join("")}</table>`;
+}
+
+function addEM(){
+  data.acuteEM.push({
+    patientType:$("emType").value,
+    level:$("emLevel").value.trim(),
+    code:$("emCode").value.trim(),
+    description:$("emDesc").value.trim()
+  });
+  editChooseKind("problem");
+}
+
+function addPOCT(){
+  data.poct.push({
+    test:$("poctTest").value.trim(),
+    code:$("poctCode").value.trim(),
+    description:$("poctDesc").value.trim()
+  });
+  editChooseKind("problem");
+}
+
+function exportHtml(){
+  // 1. Reset UI state BEFORE export
+  const main = document.getElementById("mainPage");
+  const edit = document.getElementById("editPage");
+  const help = document.getElementById("jsonHelpPage");
+
+  main.classList.remove("hidden");
+  edit.classList.add("hidden");
+  help.classList.add("hidden");
+
+  // Reset workflow state too (so it opens clean)
+  if (typeof resetFlow === "function") {
+    resetFlow();
+  }
+
+  // 2. Now export HTML with clean state
+  const fresh = JSON.stringify(data, null, 2);
+
+  const doc = document.documentElement.outerHTML.replace(
+    /<script id="app-data" type="application\/json">[\s\S]*?<\/script>/,
+    `<script id="app-data" type="application/json">\n${fresh.replace(/</g,"\\u003c")}\n<\/script>`
+  );
+
+  const blob = new Blob(["<!doctype html>\n" + doc], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "pediatric-cpt-tool-updated.html";
+  document.body.appendChild(a);
+  a.click();
+
+  setTimeout(()=>{
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  }, 1000);
+}
+
+render();
+</script>
+
+
+</body></html>
