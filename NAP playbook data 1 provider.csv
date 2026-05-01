@@ -1,0 +1,164 @@
+﻿1 Doctor ,,Provider,RN,MA,PSR,Extra MA,OM ,Notes ,
+"3 RN 
+5 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"2 RN 
+5 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"1 RN 
+5 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"0 RN 
+5 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"3 RN 
+4 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"2 RN 
+4 MAs",Priority Task,,VM/Triage,Rooming,"check in/out patients
+scheduling","Cross trained MA shift to PSR
+other MA complete tasks assigned by OM",,"1:1 Rooming
+
+Excess staff may request to go home, minimum 1 RN, 1 roomer, 1 PSR depending on support staff load",
+,Secondary Task,,Assist roomers if prompted,Forms and records,"Workqueues, make proactive calls to NPs on schedules.
+Schedule overdue patients",downtime list,,,
+,Tertiary Task ,,"PAs, forms, and other assigned tasks. ",downtime list,other tasks assigned by OM,,,,
+"1 RN 
+4 MAs",Priority Task,,VM/triage,rooming,"check in/out patients
+scheduling","cross trained MA shift to PSR
+Other MA complete tasks asigned by OM",,"1:1 Rooming
+
+Excess staff may request to go home, minimum 1 RN, 1 roomer, 1 PSR depending on support staff load",
+,Secondary Task,,Assist roomers if prompted,"Forms/records
+restocking","Workqueues, make proactive calls to NPs on schedules.
+Schedule overdue patients",downtime list,,,
+,Tertiary Task ,,"PAs, forms, and other assigned tasks. ",downtime list,other tasks assigned by OM,,,,
+"0 RN 
+4 MAs",Priority Task,,,rooming,"check in/out patients
+scheduling","cross trained MA shift to PSR
+Other MA send VM/Mychart triage to docs",,"1:1 rooming
+
+Excess staff may request to go home. Minimum 1 person working triage calls, 1 Roomer, 1 PSR depending on support staff load",
+,Secondary Task,,,"forms and records
+restocking","Workqueues, make proactive calls to NPs on schedules.
+Schedule overdue patients",downtime list,,,
+,Tertiary Task ,,,downtime list,other tasks assigned by OM,,,,
+"3 RN 
+3 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+"2 RN 
+3 MAs
+",Priority Task,,VM/triage,rooming,"Checkin/out patients
+Scheduling","cross trained MA shift to PSR
+Other MA complete tasks assigned by OM",,"Overstaffed
+
+Staff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR",
+,Secondary Task,,Assist roomers if prompted,"Forms/Records
+Restocking","Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",downtime list,,,
+,Tertiary Task ,,"Pas, forms, and other assigned tasks",downtime list,other assigned tasks by OM/  ,,,,
+"1 RN 
+3 MAs
+",Priority Task,,VM/triage,rooming,"Checkin/out patients
+Scheduling","cross trained MA shift to PSR
+Other MA complete tasks assigned by OM",,"Overstaffed
+Staff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR",
+,Secondary Task,,Assist roomers if prompted,"Forms/Records
+Restocking","Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",downtime list,,,
+,Tertiary Task ,,"Pas, forms, and other assigned tasks",downtime list,other assigned tasks by OM/  ,,,,
+0 RN                            3 MA                       ,Priority Task,,-,Rooming,"Checkin/out patients
+Scheduling","Cross trained MA shift to PSR
+Other MA send VM/triage to doc",,"Overstaffed
+ 
+Staf can voluntarily go home if there is at least 1 person other than OM to help with triage, 1 Roomer, 1 PSR",
+,Secondary Task,,-,"Forms/Records
+Restocking","Work workques, make proactive calls to NP's on schedules, patient reachout for overdue patients",downtime list or other tasks assigned by OM,,,
+,Tertiary Task ,,-,downtime list,other assigned tasks by OM/  ,,,,
+"3 RN 
+2 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+2 RN                         2 MAs                      ,Priority Task,,VM/triage,rooming ,"Checkin/out patients
+Scheduling",Cross trained MA shift to PSR,,"Overstaffed
+
+Staff can voluntarily leave, keep minimum of 1 triage, 1 Roomer, 1 PSR",
+,Secondary Task,,assist roomers if prompted,"Form/record, restocking","workqueues
+Proactive calls to NP's,
+Schedule overdue patients",downtime list or other tasks assigned by OM,,,
+,Tertiary Task ,,"Pas, forms and other assigned tasks",downtime list,other assigned tasks by OM/  ,,,,
+1 RN                         2 MA                       ,Priority Task,,"VM/msgs
+","Rooming
+","Checkin/out patients
+Scheduling",cross trained MA shift to PSR,Assist PSR ,,
+,Secondary Task,,Assist Roomer if RN required,"Assist other roomer as needed
+","workqueues
+Proactive calls to NP's,
+Schedule overdue patients",downtime list or other tasks assigned by OM,,,
+,Tertiary Task ,,"Prior Authorizations; forms; 
+other duties as assigned ","Form/record, restocking",other assigned tasks by OM/  ,,,,
+0 RN                         2 MAs                       ,Priority Task,,,"1 MA Room
+","Checkin/out patients
+Scheduling",Send VM/triage to doc,,,
+,Secondary Task,,,"forms/records
+restocking
+","workqueues
+Proactive calls to NP's,
+Schedule overdue patients",Assist roomer when prompted,,,
+,Tertiary Task ,,,downtime list,other assigned tasks by OM/  ,downtime list or other tasks assigned by OM,,,
+"3 RN 
+1 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+2 RN                         1 MAs                       ,Priority Task,,"VM/msgs
+","Rooming
+","Checkin/out patients
+Scheduling                                Call Patients of Canceled Provider Sched.",,,,
+,Secondary Task,,assist Roomer when prompted,"Forms and records
+Restocking                                   ","workqueues
+Proactive calls to NP's,
+Schedule overdue patients",,,,
+,Tertiary Task ,,"Prior Authorizations; forms; 
+other duties as assigned ",downtime  list,other assigned tasks by OM/  ,,,,
+1 RN                         1 MAs                       ,Priority Task,,"VM/msgs
+","Rooming
+","Checkin/out patients
+Scheduling                                Call Patients of Canceled Provider Sched.",,,,
+,Secondary Task,,Assist Roomer as needed,"Forms/Records
+Restocking","workqueues
+Proactive calls to NP's,
+Schedule overdue patients",,,,
+,Tertiary Task ,,"Prior Authorizations; forms; 
+other duties as assigned ",,other assigned tasks by OM/  ,,,,
+0 RN                         1 MAs                       ,Priority Task,,,Rooming,"Checkin/out patients
+Scheduling                                Call Patients of Canceled Provider Sched.",,,,
+,Secondary Task,,,Check with docs about how they can help with triage,"workqueues
+Proactive calls to NP's,
+Schedule overdue patients",,,,
+,Tertiary Task ,,,,other assigned tasks by OM/  ,,,,
+"3 RN 
+0 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
+2 RN                         0 MAs                       ,Priority Task,,"VM/msgs
+1 RN room",,"Checkin/out patients
+Scheduling                                Call Patients of Canceled Provider Sched.",,,,
+,Secondary Task,,Assist other RN,,"workqueues
+Proactive calls to NP's,
+Schedule overdue patients",,,,
+,Tertiary Task ,,"PA, Forms/records",,other assigned tasks by OM/  ,,,,
+1 RN                         0 MAs                       ,Priority Task,,"Rooming
+",,"Checkin/out patients
+Scheduling                                Call Patients of Canceled Provider Sched.",,,,
+,Secondary Task,,VM/msgs,,"workqueues
+Proactive calls to NP's,
+Schedule overdue patients",,,,
+,Tertiary Task ,,,,other assigned tasks by OM/  ,,,,
+"0 RN 
+0 MAs",Priority Task,,,,,,,,
+,Secondary Task,,,,,,,,
+,Tertiary Task ,,,,,,,,
