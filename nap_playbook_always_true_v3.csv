@@ -1,14 +1,8 @@
-"Text"
-"Always prioritize clinic flow if unsure what to do.
-
-Rooming means the full rooming workflow from the beginning of rooming until the patient is ready for checkout, including nurse visits when applicable.
-
-MAs are the primary roomers. RNs can room, but if an RN is rooming, they are not counted as an RN acting in the RN role for the staffing scenario.
-
-Some MA/PSR cross-trained staff can room. If they shift to rooming, they are not counted as PSR coverage for that scenario.
-
-If help is needed, the person needing help should ask directly, in person when possible, and confirm the request was heard.
-
-OM supports bottlenecks and acts as PSR/front desk coverage when no PSR is assigned.
-
-Lower-priority tasks should be deferred until patient flow, triage, rooming, and front desk coverage are stable."
+Section,Text
+Always True,Always prioritize clinic flow if unsure what to do.
+Always True,Rooming flow is the highest operational priority; protect at least a 1:2 rooming ratio whenever mathematically possible.
+Always True,"At least one PSR/front desk function must be covered. If no PSR is assigned, the Office Manager acts as PSR/front desk coverage."
+Always True,"If help is needed, the person needing help should ask directly, in person when possible, and verify that the request was heard."
+Definitions,"Rooming means the patient-flow work from the beginning of rooming until the patient is leaving for checkout, including nurse visits when applicable."
+Definitions,"RNs listed in the staffing selector are RNs acting as RNs. If an RN shifts to rooming, that RN is not counted as dedicated RN coverage for priority logic."
+Definitions,Some PSRs may be MA/PSR cross-trained and able to room patients. The playbook notes this only when shifting that person affects minimum staffing priorities.
