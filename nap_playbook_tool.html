@@ -60,8 +60,8 @@
 </div>
 </div>
 <script>
-const MAIN_CSV = './NAP_playbook_data.csv';
-const ALWAYS_CSV = './NAP_playbook_data_always_true.csv';
+const MAIN_CSV = './nap_playbook_data.csv';
+const ALWAYS_CSV = './nap_playbook_data_always_true.csv';
 let DATA = [];
 let ALWAYS_ROWS = [];
 const el = id => document.getElementById(id);
@@ -99,8 +99,8 @@ async function init(){ try{ initControls(); DATA=await loadCSV(MAIN_CSV); ALWAYS
 [providersEl,rnsEl,masEl,psrsEl,roleEl].forEach(x=>x.addEventListener('change',render));
 el('toggleEdit').addEventListener('click',()=>{ el('editPanel').classList.toggle('hidden'); render(); });
 el('saveEdits').addEventListener('click',saveEdits);
-el('exportMain').addEventListener('click',()=>download('NAP_playbook_data.csv', toCSV(DATA)));
-el('exportAlways').addEventListener('click',()=>download('NAP_playbook_data_always_true.csv', toCSV(ALWAYS_ROWS)));
+el('exportMain').addEventListener('click',()=>download('nap_playbook_data.csv', toCSV(DATA)));
+el('exportAlways').addEventListener('click',()=>download('nap_playbook_data_always_true.csv', toCSV(ALWAYS_ROWS)));
 el('toggleAlwaysEdit').addEventListener('click',()=>el('alwaysEditBox').classList.toggle('hidden'));
 el('saveAlways').addEventListener('click',()=>{ if(!ALWAYS_ROWS.length) ALWAYS_ROWS=[{Section:'Always True', Text:''}]; ALWAYS_ROWS[0].Text=el('editAlways').value; el('alwaysTrue').textContent=ALWAYS_ROWS[0].Text||'—'; });
 init();
